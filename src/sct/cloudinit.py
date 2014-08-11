@@ -197,6 +197,8 @@ class PuppetMasterInitCloudBashScript(FormattedCloudInitShScript):
     for DSK in $SWAP_DISKS; do
         swapon $DSK
     done
+    apt-get -q -y --force-yes install facter=2.0.2-1puppetlabs1
+    apt-mark hold facter
     SK=/usr/local/bin/skapur
     RP=/usr/local/bin/reload-puppet-master
     curl -o ${SK} http://ftp.info.uvt.ro/projects/scape/tools/skapur/skapur
