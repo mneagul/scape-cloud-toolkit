@@ -33,6 +33,7 @@ from sct.templates.base import generate_node_content
 
 SKAPUR_PORT = 8088
 
+
 class ClusterController(BaseController):
     def __init__(self, config, cloud_controller):
         BaseController.__init__(self, config)
@@ -43,9 +44,10 @@ class ClusterController(BaseController):
 
     def init(self): # Used for lazzy init
         if not self._initialized:
-            if 'clusters' not in self.configObj.config:
-                self.configObj.config["clusters"] = {}
-            self.clusters_config = self.configObj.config.get("clusters")
+            #if 'clusters' not in self.configObj.config:
+            #    self.configObj.config["clusters"] = {}
+            self.clusters_config = self.configObj.getSectionConfig("clusters")
+            #self.clusters_config = self.configObj.config.get("clusters")
             BaseController.init(self)
 
             self._initialized = True
@@ -54,15 +56,15 @@ class ClusterController(BaseController):
     def create(self, name, image, size, security_group, module_repository_url, module_repository_branch,
                module_repository_tag):
         log = logging.getLogger("cluster.create")
+        cluster_section_name = "%s/" % name
 
         config_registry = self.get_config_registry()
-        if name in self.clusters_config:
+        if cluster_section_name in self.clusters_config:
             log.error("Cluster %s is already defined", name)
             return False
-        self.clusters_config[name] = {}
-        cluster_config = self.clusters_config[name]
-        cluster_config["nodes"] = {}
-        cluster_nodes_config = cluster_config["nodes"]
+
+        cluster_config = self.clusters_config.getSectionConfig(name)
+        cluster_nodes_config = cluster_config.getSectionConfig("nodes")
 
         requested_size = size or config_registry.get('cluster.default_size', None)
         requested_image = image or config_registry.get('cluster.default_image', None)
@@ -123,8 +125,9 @@ class ClusterController(BaseController):
         cloudInit.add_handler(
             CloudConfigStoreFile(pkg_resources.resource_string(__name__, "resources/puppet/bootstrap_master.pp"),
                                  "/etc/puppet_scape_master.pp"))
-        cloudInit.add_handler(CloudConfigStoreFile(pkg_resources.resource_string(__name__, "resources/puppet/puppet.conf"),
-                                                   "/etc/puppet/puppet.conf"))
+        cloudInit.add_handler(
+            CloudConfigStoreFile(pkg_resources.resource_string(__name__, "resources/puppet/puppet.conf"),
+                                 "/etc/puppet/puppet.conf"))
         #cloudInit.add_handler(DefaultPuppetCloudConfig())
         cloudInit.add_handler(PuppetMasterCloudConfig())
         cloudInit.add_handler(
@@ -146,7 +149,7 @@ class ClusterController(BaseController):
         cluster_nodes_config["management_node"] = {'name': management_node_name,
                                                    'instance_id': node["instance_id"],
                                                    'ip': node["ip"],
-                                                   'private_ips': node["private_ips"],
+                                                   'private_ips': node["private_ips"][0],
                                                    'hmac_secret': hmac_secret,
                                                    'puppet-module-repository': requested_module_repository_url
         }
@@ -156,20 +159,24 @@ class ClusterController(BaseController):
         """
         Return all nodes implementing a template
         """
-        nodes = cluster_config.get("nodes", {})
+        nodes_config = cluster_config.getSectionConfig("nodes")
         result = []
-        for node_name, node_entry in nodes.items():
-            node_template = node_entry.get("template", None)
-            if node_template is None:
+        nodes = nodes_config.getChildSections()
+
+        for node in nodes:
+            node_entry = nodes_config.getSectionConfig(node)
+            if u"node_template" not in node_entry.getChildren():
                 continue
+            node_template = node_entry['node_template']
             if node_template == template_name:
-                result.append((node_name, node_entry))
+                results.append((node, ))
         return result
 
 
     def add_node(self, template_name, cluster_name):
         log = logging.getLogger("cluster.add_node")
         config_registry = self.get_config_registry()
+
         cluster_config = self.clusters_config.get(cluster_name)
         if cluster_config is None:
             log.error("No such cluster: %s", cluster_name)
@@ -278,35 +285,36 @@ class ClusterController(BaseController):
                 return False
         log.info("Connected to management server (%d seconds)", current_duration)
         puppet_node_custom = ""
-        puppet_node_config = generate_node_content(private_name, cloudInitHandler.get_puppet_node_specification(private_name))
-        puppet_node_file_name="%s.pp" % desired_node_name
+        puppet_node_config = generate_node_content(private_name,
+                                                   cloudInitHandler.get_puppet_node_specification(private_name))
+        puppet_node_file_name = "%s.pp" % desired_node_name
         skapurClient.store(puppet_node_file_name, puppet_node_config)
 
         return True
 
     def list_clusters(self):
-        cluster_config = self.clusters_config
-        clusters = cluster_config.keys()
-        return  clusters
+        clusters = [str(cluster) for cluster in  self.clusters_config.getChildSections()]
+        return clusters
 
     def info(self, cluster_name):
         log = logging.getLogger("cluster.info")
         clusters_config = self.clusters_config
-        if cluster_name not in clusters_config:
+        if not clusters_config.hasSection(cluster_name):
             log.error("No such cluster `%s` !", cluster_name)
             return False
 
-        cluster_config = clusters_config[cluster_name]
-        config_nodes = cluster_config["nodes"]
-        mgmt_node_ip = config_nodes.get("management_node", {}).get('ip', None)
-        module_repository_url = config_nodes.get("management_node", {}).get('puppet-module-repository', None)
+        cluster_config = clusters_config.getSectionConfig(cluster_name)
+        config_nodes = cluster_config.getSectionConfig("nodes")
+        mgmt_node_config = config_nodes.getSectionConfig("management_node")
+        mgmt_node_ip = str(mgmt_node_config["ip"])
+        module_repository_url = str(mgmt_node_config['puppet-module-repository'])
 
         result = {}
         templates = {}
         result['global'] = {}
         result['templates'] = templates
         if mgmt_node_ip:
-            result["global"]['puppetdb']= 'http://%s:8080/dashboard/index.html' % mgmt_node_ip
+            result["global"]['puppetdb'] = 'http://%s:8080/dashboard/index.html' % mgmt_node_ip
         if module_repository_url:
             result["global"]["module-repository"] = module_repository_url
 

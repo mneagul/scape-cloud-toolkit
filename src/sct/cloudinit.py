@@ -184,6 +184,14 @@ class PuppetMasterInitCloudBashScript(FormattedCloudInitShScript):
     . /etc/profile
     echo 'START=yes\nDAEMON_OPTS=""\n' > /etc/default/puppet
     sed -i 's|127.0.0.1|127.0.0.1 puppet|g' /etc/hosts
+    LV=`LANG=C mount | grep -i 'on / ' | cut -d " " -f 1`
+    VG=`echo $LV | cut -d "/" -f 4 | cut -d "-" -f 1`
+    /sbin/pvcreate /dev/vdb
+    /sbin/vgextend $VG /dev/vdb
+    /sbin/lvresize -l +90%FREE $LV
+    /sbin/resize2fs $LV
+    lvcreate -L 800M -n Swap ubuntu
+    mkswap -f /dev/ubuntu/Swap
 
     SWAP_DISKS=$(blkid -s TYPE | grep -i swap | cut -d ":" -f 1)
     for DSK in $SWAP_DISKS; do
@@ -191,7 +199,6 @@ class PuppetMasterInitCloudBashScript(FormattedCloudInitShScript):
     done
     SK=/usr/local/bin/skapur
     RP=/usr/local/bin/reload-puppet-master
-
     curl -o ${SK} http://ftp.info.uvt.ro/projects/scape/tools/skapur/skapur
     chmod +x ${SK}
     mkdir -p /etc/puppet/manifests/nodes/
@@ -199,20 +206,16 @@ class PuppetMasterInitCloudBashScript(FormattedCloudInitShScript):
     chown -R puppet /etc/puppet/manifests/nodes/
     ln -s /etc/scape/modules/sct/files/templates /etc/puppet/manifests/templates
     ln -s /etc/scape/modules/sct/files/site.pp /etc/puppet/manifests/site.pp
-    echo ${RP}
+    echo -e "#!/bin/bash\n/etc/init.d/puppetmaster restart" > ${RP}
     chmod +x ${RP}
     screen -A -m -d -S skapurpuppet sudo -u puppet ${SK} -hook=${RP} -address="0.0.0.0:8088" -store /etc/puppet/manifests/nodes/ -secret "@HMACSECREET"
-
     /etc/init.d/puppetmaster stop
     /etc/init.d/puppet stop
     echo "*" > /etc/puppet/autosign.conf
     rm -fr /var/lib/puppet/ssl/*
     /etc/init.d/puppetmaster start
     /etc/init.d/puppet start
-
-    echo -e "#!/bin/bash\n/etc/init.d/puppetmaster restart" > ${RP}
     puppet module install --target-dir /etc/puppet/modules/ puppetlabs/puppetdb
-
     mkdir -p /etc/scape/
     apt-get install -y git
     git clone @URL /etc/scape/modules

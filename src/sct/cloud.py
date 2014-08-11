@@ -58,9 +58,9 @@ class CloudController(BaseController):
     def init(self):
         if not self._initialized:
             BaseController.init(self)
-            config = self.configObj.config['euca']
+            config = self.configObj.getSectionConfig('euca')
             self.euca_config = config
-            self.config = self.configObj.config
+            self.config = self.configObj
             if 'eucalyptus_cert_file_path' in config:
                 libcloud.security.CA_CERTS_PATH.append(config["eucalyptus_cert_file_path"])
             self.driver = get_compute_driver(ComputeProvider.EUCALYPTUS)
@@ -110,6 +110,7 @@ class CloudController(BaseController):
             log.debug("Looking up keypairs")
             matching_keypairs = [keypair for keypair in self.list_keypairs(name=keypair_name)]
             if matching_keypairs:
+                log.debug("Using keypair %s", keypair_name)
                 requested_keypair_name = matching_keypairs[0].name
                 kwargs["ex_keyname"] = requested_keypair_name
             else:
@@ -226,7 +227,7 @@ class CloudController(BaseController):
 
         return nodes
 
-    def terminate_node(self, instance_id):
+    def terminate_node(self, instance_id, blocking=True, timeout=100):
         log = logging.getLogger("terminate_node")
         instances = self.get_libcloud_nodes(instance_id)
         if not instances:
@@ -236,6 +237,19 @@ class CloudController(BaseController):
         assert len(instances) == 1
         instance = instances[0]
         self.conn.destroy_node(instance)
+        if blocking:
+            log.debug("waiting for node termination")
+            start_time = time.time()
+            while True:
+                time.sleep(1)
+                instances = self.get_libcloud_nodes(instance_id)
+                if not instances: return True
+                self.conn.destroy_node(instance)
+                current_time = time.time()
+                duration = current_time - start_time
+                if duration > 100:
+                    log.error("Could not stop machine in the specified timeout: %s seconda", timeout)
+                    return False
         return True
 
     def list_images(self, **kwargs):
@@ -400,11 +414,14 @@ class CloudController(BaseController):
     def console(self, node_id, keypair_name):
         log = logging.getLogger("node.console")
         keypair_config = self._get_keypair_config_container()
-        config_directory = self.config["config_directory"]
-        if keypair_name not in keypair_config:
+
+        config_section = self.config.getSectionConfig("config")
+        config_directory = config_section["config_directory"]
+        if not keypair_config.hasSection(keypair_name):
             log.error("Keypair named %s is not in localconfig", keypair_name)
             return False
-        keypair_priv_key = keypair_config[keypair_name]["private_key"]
+
+        keypair_priv_key = keypair_config.getSectionConfig(keypair_name)["private_key"]
         config_registry = self.get_config_registry()
         ssh_client = config_registry.get("global.ssh.client", "ssh")
         ssh_user = config_registry.get("global.ssh.user", "ubuntu")
@@ -427,6 +444,7 @@ class CloudController(BaseController):
 
         call_args = [ssh_client, "-i", named_key_temp_file.name, "-o", "StrictHostKeyChecking=no", "-o",
                      "UserKnownHostsFile=%s" % named_known_hosts_temp_file.name, "%s@%s" % (ssh_user, ip_address)]
+
         log.debug("Calling: '%s'", " ".join(call_args))
         ret_code = subprocess.call(call_args)
         if ret_code != 0:

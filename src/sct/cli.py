@@ -27,8 +27,6 @@ from logging.config import dictConfig
 import yaml
 import pkg_resources
 
-#import lockfile
-
 from sct.config import CONFIG_FILE, argparse_euca_helper
 from sct.config import ConfigFile
 from sct.cloud import CloudController
@@ -56,7 +54,7 @@ class ControllerWrapper(object):
                     inner_cc = ControllerWrapper(outer_obj.__class__, outer_obj)
 
                     def __args_wrapper(args):
-                        cfg.load_config(args.config_file)
+
                         self.outer_instance.klassInst.init()
                         passed_args = self._filter_args(args)
                         if args.disable_ssl_check:
@@ -66,7 +64,7 @@ class ControllerWrapper(object):
 
                         result = func(**passed_args)
                         yaml.dump(result, sys.stdout, default_flow_style=False)
-                        cfg.store_config(args.config_file)
+
 
                     return __args_wrapper
 
@@ -95,12 +93,11 @@ class ControllerWrapper(object):
                 def __func_wrapper(args):
                     passed_args = self._filter_args(args)
 
-                    cfg.load_config(args.config_file)
                     outer_instance.klassInst.init()
                     if args.disable_ssl_check:
                         outer_instance.klassInst.disable_ssl_check()
                     result = inner_attrib(**passed_args)
-                    cfg.store_config(args.config_file)
+
                     yaml.dump(result, sys.stdout, default_flow_style=False)
 
                 return __func_wrapper
@@ -117,7 +114,7 @@ def main():
         epilog="(c) Universitatea de Vest din Timisoara"
     )
 
-    cfg = ConfigFile()
+    cfg = ConfigFile(config_file="~/sct.scape.db")
     parser.add_argument("--config-file",
                         type=str,
                         default=CONFIG_FILE,

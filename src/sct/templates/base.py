@@ -31,12 +31,14 @@ class TemplateHandler(object):
 
 
 class BaseTemplate(TemplateHandler, BaseHandler):
+    rootfs_update_script = pkg_resources.resource_string(__name__, "resources/resize_rootfs.sh")
     def __init__(self, parts=[], *args, **kwargs):
         BaseHandler.__init__(self)
         TemplateHandler.__init__(self, *args, **kwargs)
         self._cloud_init_parts = []
         self.cloud_config = CloudConfig()
         self.add_part(self.cloud_config)
+        self.add_part(FormattedCloudInitShScript(self.rootfs_update_script, {}))
 
         if parts:
             self._cloud_init_parts.extend(parts)
