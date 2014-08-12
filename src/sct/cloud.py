@@ -447,9 +447,12 @@ class CloudController(BaseController):
 
         log.debug("Calling: '%s'", " ".join(call_args))
         ret_code = subprocess.call(call_args)
-        if ret_code != 0:
+        if ret_code == 255:
             log.debug("External command returned: %d", ret_code)
             log.error("Faild to connect to %s (node %s)", ip_address, node_id)
+            return False
+        elif ret_code != 0:
+            log.debug("Remote command returned non-zero")
             return False
         return True
 
