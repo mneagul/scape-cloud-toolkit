@@ -44,7 +44,7 @@ class SkapurClient(object):
         if path.startswith("/"):
             log.debug("Stripping / from requested url")
             path = path[1:]
-        token = hmac.new(self.secret, "/" + path, hashlib.sha256).hexdigest()
+        token = hmac.new(str(self.secret), str("/" + path), hashlib.sha256).hexdigest()
         path = "%s/%s" % (token, path)
         request_path = urlparse.urljoin(self.url, path)
         log.debug("Storing to: %s", request_path)
