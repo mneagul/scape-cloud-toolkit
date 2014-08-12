@@ -31,7 +31,7 @@ def read(fname):
 srcdir = 'src'
 setup(
     name="sct",
-    version="0.0.1",
+    version="0.0.2",
     author="Marian Neagul",
     author_email="marian@info.uvt.ro",
     description="SCT is a SCAPE tool for cloud deployment",
