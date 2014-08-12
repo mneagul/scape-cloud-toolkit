@@ -177,10 +177,12 @@ class ClusterController(BaseController):
         log = logging.getLogger("cluster.add_node")
         config_registry = self.get_config_registry()
 
-        cluster_config = self.clusters_config.get(cluster_name)
-        if cluster_config is None:
+        clusters = self.clusters_config.getChildSections()
+        if cluster_name not in clusters:
             log.error("No such cluster: %s", cluster_name)
             return False
+
+        cluster_config = self.clusters_config.getSectionConfig(cluster_name)
         template = get_template(template_name)
 
         #ToDo: We should use cluster wide config first and after that global config
@@ -214,10 +216,18 @@ class ClusterController(BaseController):
                       template['max-node-count'], template_name)
             return False
 
-        mgmt_node_config = cluster_config.setdefault('nodes', {}).get('management_node', None)
-        if mgmt_node_config is None:
+        if 'nodes' not in cluster_config.getChildSections():
+            log.error("No nodes defined in cluster")
+            return False
+
+        config_defined_nodes = cluster_config.getSectionConfig("nodes").getChildSections()
+
+        if 'management_node' not in config_defined_nodes:
             log.error("Invalid cluster. Management node is missing. Aborting")
             return False
+        mgmt_node_config = cluster_config.getSectionConfig("nodes").getSectionConfig("management_node")
+
+
         mgmt_node_privip = mgmt_node_config['private_ips']
         mgmt_node_ip = mgmt_node_config['ip']
         mgmt_node_hmac_secret = mgmt_node_config["hmac_secret"]
@@ -257,15 +267,16 @@ class ClusterController(BaseController):
 
         private_name = node["private_dns"]
 
-        cluster_config_nodes = cluster_config['nodes']
-        cluster_config_nodes[desired_node_name] = {
-            'name': desired_node_name,
-            'instance_id': node["instance_id"],
-            'ip': node["ip"],
-            'private_ips': node["private_ips"],
-            'private_dns': node["private_dns"],
-            'template': template_name
-        }
+        cluster_config_nodes = cluster_config.getSectionConfig("nodes")
+        node_config_section = cluster_config_nodes.getSectionConfig(desired_node_name)
+
+
+        node_config_section["name"] = desired_node_name
+        node_config_section["instance_id"] = node["instance_id"]
+        node_config_section["ip"] =  node["ip"]
+        node_config_section["private_ips"] = node["private_ips"][0]
+        node_config_section["private_dns"] =  node["private_dns"]
+        node_config_section["template"] = template_name
 
         skapur_url = "http://%s:%d" % (mgmt_node_ip, SKAPUR_PORT)
         skapurClient = SkapurClient(secret=mgmt_node_hmac_secret, url=skapur_url)
