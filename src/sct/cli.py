@@ -30,6 +30,7 @@ import pkg_resources
 from sct.config import CONFIG_FILE, argparse_euca_helper
 from sct.config import ConfigFile
 from sct.cloud import CloudController
+from sct.server import handle_server_cli
 from sct.templates import get_available_templates
 
 
@@ -111,7 +112,7 @@ cc = ControllerWrapper(CloudController)
 def main():
     parser = argparse.ArgumentParser(
         description="SCAPE Cloud Toolkit",
-        epilog="(c) Universitatea de Vest din Timisoara"
+        epilog="© Universitatea de Vest din Timisoara"
     )
 
     cfg = ConfigFile(config_file="~/sct.scape.db")
@@ -130,6 +131,7 @@ def main():
     cloud_info_parser.set_defaults(func=cfg.get_config_handler("info"))
     euca_parser = subparsers.add_parser('euca')
     cluster_parser = subparsers.add_parser("cluster")
+    server_parser = subparsers.add_parser("server")
 
     ############## Cloud Config #################
     cloud_config_subparsers = cloud_config_parser.add_subparsers(title="Subcomands",
@@ -277,6 +279,9 @@ def main():
     info_cluster_parser = cluster_subparsers.add_parser("info")
     info_cluster_parser.add_argument("--cluster-name", required=True, help="Cluster Name")
     info_cluster_parser.set_defaults(func=cc.cluster.info(cfg))
+
+    # Server
+    server_parser.set_defaults(func=handle_server_cli)
 
     ###### Handle
     args = parser.parse_args()
