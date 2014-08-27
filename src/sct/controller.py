@@ -29,6 +29,7 @@ class BaseController(object):
         self.config = None
         self.global_config = None
         self._initialized = False
+        self.loaded = False
 
     def init(self):
         pass
