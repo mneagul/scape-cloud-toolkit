@@ -33,7 +33,7 @@ class CloudToolkitWebServer(object):
         index_content = pkg_resources.resource_string(__name__, "resources/web/index.html")
         return index_content
 
-def handle_server_cli(args):
+def handle_server_cli(args, cfg):
     static_content_dir = pkg_resources.resource_filename(__name__, "resources/web/static/")
 
     config = {
@@ -48,7 +48,7 @@ def handle_server_cli(args):
 
     webapp = CloudToolkitWebServer()
     cherrypy.tree.mount(webapp, "/", config=config)
-    cherrypy.tree.graft(get_app(), "/api")
+    cherrypy.tree.graft(get_app(cfg), "/api")
     cherrypy.config.update(config)
     logging.info("Satrating server...")
     cherrypy.engine.start()

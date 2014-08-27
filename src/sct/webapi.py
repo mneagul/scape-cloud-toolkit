@@ -19,22 +19,61 @@ limitations under the License.
 @copyright: 2014 Universitatea de Vest din Timișoara
 """
 
-
-
 from jsonrpc2 import JsonRpcApplication
+from mjsrpc2 import rpc
+from mjsrpc2.rpc import jsonmethod
+from sct.cloud import CloudController
+from sct.cluster import ClusterController
+from sct.config import DatabaseConfigBackend
 
 
-def get_app():
+class APIApp(rpc.RPCBase):
+    def __init__(self, cfg):
+        rpc.RPCBase.__init__(self)
+        self._cfg = cfg
+
+
+    def _get_config_copy(self):
+        return DatabaseConfigBackend(self._cfg._config_file)
+
+    def _get_cloud(self):
+        cc = CloudController(self._get_config_copy())
+        cc.init()
+        return cc
+
+
+    def _get_cluster(self):
+        cc = ClusterController(self._get_config_copy(), self._get_cloud())
+        cc.init()
+        return cc
+
+    @jsonmethod
+    def get_clusters(self):
+        clusters = self._get_cluster().list_clusters()
+        return clusters
+
+    @jsonmethod
+    def create_cluster(self, name):
+        raise NotImplementedError()
+
+    @jsonmethod
+    def delete_cluster(self, name):
+        raise NotImplementedError()
+
+    @jsonmethod
+    def get_cluster_info(self, name):
+        raise NotImplementedError()
+
+    @jsonmethod
+    def add_cluster_node(self, cluster_name, node_type):
+        raise NotImplementedError()
+
+    @jsonmethod
+    def delete_cluster_node(self, cluster_name, node_id):
+        raise NotImplementedError()
+
+
+def get_app(cfg):
     app = JsonRpcApplication()
-    app.rpc = APIApp()
+    app.rpc = rpc.RPCService(APIApp(cfg))
     return app
-
-
-
-class APIApp(object):
-    pass
-
-
-
-
-

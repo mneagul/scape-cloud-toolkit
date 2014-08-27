@@ -33,9 +33,11 @@ from sct.cloud import CloudController
 from sct.templates import get_available_templates
 
 
-def _web_server_wrapper_function(*args, **kw):
-    from sct.server import handle_server_cli
-    handle_server_cli(*args, **kw)
+def _web_server_wrapper_function(cfg):
+    def __inner_wrapper(args):
+        from sct.server import handle_server_cli
+        handle_server_cli(args, cfg)
+    return __inner_wrapper
 
 class ControllerWrapper(object):
     def __init__(self, klass, klassInst=None):
@@ -284,7 +286,7 @@ def main():
     info_cluster_parser.set_defaults(func=cc.cluster.info(cfg))
 
     # Server
-    server_parser.set_defaults(func=_web_server_wrapper_function)
+    server_parser.set_defaults(func=_web_server_wrapper_function(cfg))
 
     ###### Handle
     args = parser.parse_args()
