@@ -30,9 +30,12 @@ import pkg_resources
 from sct.config import CONFIG_FILE, argparse_euca_helper
 from sct.config import ConfigFile
 from sct.cloud import CloudController
-from sct.server import handle_server_cli
 from sct.templates import get_available_templates
 
+
+def _web_server_wrapper_function(*args, **kw):
+    from sct.server import handle_server_cli
+    handle_server_cli(*args, **kw)
 
 class ControllerWrapper(object):
     def __init__(self, klass, klassInst=None):
@@ -281,7 +284,7 @@ def main():
     info_cluster_parser.set_defaults(func=cc.cluster.info(cfg))
 
     # Server
-    server_parser.set_defaults(func=handle_server_cli)
+    server_parser.set_defaults(func=_web_server_wrapper_function)
 
     ###### Handle
     args = parser.parse_args()
