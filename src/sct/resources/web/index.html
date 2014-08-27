@@ -1,8 +1,100 @@
-<html>
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<html ng-app>
     <head>
-        <title>It works</title>
+        <meta charset="UTF-8">
+        <title>SCAPE Cloud Toolkit</title>
+        <script src="static/js/jquery.js"></script>
     </head>
     <body>
+        <div id="header"></div>
+        <div id="menuLeft"></div>
+        
 
+        <div class="row-fluid" id="conteneur">
+
+            <div class="col-md-8">
+                <div ng-hide="false" id="r" class="panel panel-primary">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">
+                         <h3>Managers List</h3></br>
+<!--                        New manager button-->
+                        <button type='button' class='btn btn-info' data-toggle='modal' data-target=".bs-add-modal-sm">New Manager</button>
+                        
+                       
+
+                    </div>
+                    <div class="panel-body">
+                        <p>Some default panel content here.</p>
+                    </div>  
+                    <table class="table table-hover" id="manager-list">
+                        <TR> 
+                            <th width = 3%>  </th>
+                            <TH width = 3%> ID </TH> 
+                            <TH width = 24%> Name </TH> 
+                            <TH width = 20%> Type </TH> 
+                            <TH width = 45%> Action </TH>
+                        </TR>
+                        
+
+
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <div id="addManagerModal" class="modal fade bs-add-modal-sm"><!-- Add a new Manager -->
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Add new Manager</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <form id="addManager" role="form" action='javascript:addManager()'>
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="name" id="name" class="form-control" name="name">
+                            </div>
+                            <div class = "form-group">
+                                <label for = "info">Information</label>
+                                <input type = "text" id = "info" class = "form-control" name = "info">
+                            </div>
+                            <input type = "submit" value = "Submit">
+
+                        </form>
+
+                    </div>
+                    <div class = "modal-footer">
+                        <button type = "button" class = "btn btn-default" data-dismiss = "modal">Close</button>
+                    </div>
+                </div><!--/.modal-content -->
+            </div><!--/.modal-dialog -->
+        </div><!--/.modal -->
+
+
+        <div id="menuRight">
+        </div>
+        <script>
+            $("#header").load("/static/header.html");
+            $("#menuLeft").load("static/menuLeft.html");
+            $("#menuRight").load("static/menuRight.html");
+        </script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular.min.js"></script>
+        <script src="static/js/templates.js"></script>
+        <script src="static/js/sct.js"></script>
+        <script src="static/js/sct-rpc.js"></script>
+        <script src="static/js/jquery.tmpl.1.1.1.js"></script>
+    
     </body>
 </html>
