@@ -21,59 +21,93 @@ limitations under the License.
 
 from jsonrpc2 import JsonRpcApplication
 from mjsrpc2 import rpc
-from mjsrpc2.rpc import jsonmethod
+from mjsrpc2.rpc import jsonmethod, jsonattribute
 from sct.cloud import CloudController
 from sct.cluster import ClusterController
 from sct.config import DatabaseConfigBackend
+from sct.templates import get_available_templates, get_available_templates_detail
 
 
 class APIApp(rpc.RPCBase):
-    def __init__(self, cfg):
+    def __init__(self, cfg, ssl_check=True):
         rpc.RPCBase.__init__(self)
+        self._ssl_check = True
         self._cfg = cfg
 
 
     def _get_config_copy(self):
         return DatabaseConfigBackend(self._cfg._config_file)
 
-    def _get_cloud(self):
+    def _construct_cloud(self):
         cc = CloudController(self._get_config_copy())
+        cc.disable_ssl_check()
         cc.init()
         return cc
 
-
-    def _get_cluster(self):
-        cc = ClusterController(self._get_config_copy(), self._get_cloud())
+    def _construct_cluster_handler(self):
+        cc = ClusterController(self._get_config_copy(), self._construct_cloud())
+        cc.disable_ssl_check()
         cc.init()
         return cc
+
 
     @jsonmethod
     def get_clusters(self):
-        clusters = self._get_cluster().list_clusters()
+        clusters = self._construct_cluster_handler().list_clusters()
         return clusters
 
     @jsonmethod
-    def create_cluster(self, name):
-        raise NotImplementedError()
+    @jsonattribute("name", kind=str, documentation="Name of the cluster")
+    @jsonattribute("image", kind=str, documentation="The machine image id to use")
+    @jsonattribute("size", kind=str, documentation="The machine size")
+    @jsonattribute("security_group", kind=str, documentation="The security group")
+    @jsonattribute("module_repository_url", kind=str,
+                   documentation="The URL of the GIT repository containing Pupept recipes")
+    @jsonattribute("module_repository_branch", kind=str, documentation="The repository branch")
+    @jsonattribute("module_repository_tag", kind=str, documentation="The repository tag")
+
+    def create_cluster(self, name, image, size, security_group, module_repository_url, module_repository_branch,
+                       module_repository_tag):
+
+
+        cluster_handler = self._construct_cluster_handler().create(name, image, size, security_group,
+                                                                   module_repository_url, module_repository_branch,
+                                                                   module_repository_tag)
 
     @jsonmethod
+    @jsonattribute("name", kind=str, documentation="Name of the cluster")
     def delete_cluster(self, name):
-        raise NotImplementedError()
+        self._construct_cluster_handler().delete(name)
+        return True
 
     @jsonmethod
+    @jsonattribute("name", kind=str, documentation="Name of the cluster")
     def get_cluster_info(self, name):
-        raise NotImplementedError()
+        cluster_info = self._construct_cluster_handler().info(name)
+        return cluster_info
 
     @jsonmethod
-    def add_cluster_node(self, cluster_name, node_type):
-        raise NotImplementedError()
+    @jsonattribute("cluster_name", kind=str, documentation="Name of the cluster")
+    @jsonattribute("template_name", kind=str, documentation="The name of the template")
+    def add_cluster_node(self, cluster_name, template_name):
+        cluster_handler = self._construct_cluster_handler()
+        ret = cluster_handler.add_node(template_name, cluster_name)
+        return ret
 
     @jsonmethod
     def delete_cluster_node(self, cluster_name, node_id):
         raise NotImplementedError()
 
+    @jsonmethod
+    def get_node_templates(self):
+        return get_available_templates()
 
-def get_app(cfg):
+    @jsonmethod
+    def get_node_templates_detail(self):
+        return get_available_templates_detail()
+
+
+def get_app(cfg, ssl_check=True):
     app = JsonRpcApplication()
-    app.rpc = rpc.RPCService(APIApp(cfg))
+    app.rpc = rpc.RPCService(APIApp(cfg, ssl_check))
     return app
