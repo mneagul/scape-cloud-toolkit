@@ -286,6 +286,7 @@ def main():
     info_cluster_parser.set_defaults(func=cc.cluster.info(cfg))
 
     # Server
+    server_parser.add_argument("--disable-ssl-check", "-S", action="store_true", required=True)
     server_parser.set_defaults(func=_web_server_wrapper_function(cfg))
 
     ###### Handle

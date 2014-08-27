@@ -35,6 +35,7 @@ class CloudToolkitWebServer(object):
 
 def handle_server_cli(args, cfg):
     static_content_dir = pkg_resources.resource_filename(__name__, "resources/web/static/")
+    ssl_check = args.disable_ssl_check
 
     config = {
         '/': {
@@ -48,7 +49,7 @@ def handle_server_cli(args, cfg):
 
     webapp = CloudToolkitWebServer()
     cherrypy.tree.mount(webapp, "/", config=config)
-    cherrypy.tree.graft(get_app(cfg), "/api")
+    cherrypy.tree.graft(get_app(cfg, ssl_check = ssl_check), "/api")
     cherrypy.config.update(config)
     logging.info("Satrating server...")
     cherrypy.engine.start()
