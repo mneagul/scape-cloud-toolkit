@@ -21,6 +21,7 @@ limitations under the License.
 
 import sys
 
+import logging
 import cherrypy
 import pkg_resources
 from sct.webapi import get_app
@@ -49,7 +50,7 @@ def handle_server_cli(args):
     cherrypy.tree.mount(webapp, "/", config=config)
     cherrypy.tree.graft(get_app(), "/api")
     cherrypy.config.update(config)
-    print >>sys.stderr, "Starting server..."
+    logging.info("Satrating server...")
     cherrypy.engine.start()
 
 
