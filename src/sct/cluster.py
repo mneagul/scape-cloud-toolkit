@@ -160,17 +160,23 @@ class ClusterController(BaseController):
         Return all nodes implementing a template
         """
         nodes_config = cluster_config.getSectionConfig("nodes")
-        result = []
+        results = []
         nodes = nodes_config.getChildSections()
 
         for node in nodes:
             node_entry = nodes_config.getSectionConfig(node)
-            if u"node_template" not in node_entry.getChildren():
+            if u"template" not in node_entry.getChildren():
                 continue
-            node_template = node_entry['node_template']
+            node_template = node_entry['template']
+            node_info = {}
+            for attr in node_entry.getChildren():
+                if isinstance(node_entry[attr], unicode):
+                    node_info[attr] = str(node_entry[attr])
+                else:
+                    node_info[attr] = node_entry[attr]
             if node_template == template_name:
-                results.append((node, ))
-        return result
+                results.append((node, node_info))
+        return results
 
 
     def add_node(self, template_name, cluster_name):
