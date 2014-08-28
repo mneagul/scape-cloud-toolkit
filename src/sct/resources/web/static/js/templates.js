@@ -43,7 +43,7 @@ var managerDelDiv = '<div class = "modal fade bs-del-modal-sm#{id}">' +
                                     'Destroy manager <b>#{name}</b>?' +
                                 '</div>' +
                                 '<div class="modal-footer">' + 
-                                    '<button type="button" class="btn btn-danger"  data-dismiss="modal" onClick="deleteManager(#{id})" ng-model="success">Destroy</button>' +
+                                    '<button type="button" class="btn btn-danger"  data-dismiss="modal" onClick="deleteManager(#{name})" ng-model="success">Destroy</button>' +
                                     '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
                                 '</div>' +
                             '</div>' + //modal content
@@ -55,23 +55,16 @@ var machineAddDIV = '<div id="addMachineModal" class="modal fade bs-add-modal-sm
                                     '<div class="modal-content">' +
                                         '<div class="modal-header">' +
                                             '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' + 
-                                            '<h4 class="modal-title">Create new machine managed by#{name}?</h4>' + 
+                                            '<h4 class="modal-title">Add a node in cluster #{name}</h4>' + 
                                         '</div>' + //modal header
                                         '<div class="modal-body">' + 
                                             '<form id="addForm" role="form" action="javascript:addMachine()">' +
-                                                '<input type="hidden" name="mID" value="#{id}"></input>' +
-                                                '<div class="form-group">' +
-                                                    '<label for="name">Name</label>' +
-                                                    '<input type="name" id="name" class="form-control" name="name">' +
-                                                '</div>' +
-                                                '<label for="type">Server Type</label>' +
-                                                '<select multiple type="type" class="form-control" name="type">' +
+                                                '<input type="hidden" name="mName" value="#{name}"></input>' +
+                                                
+                                                '<label for="type">Select template</label>' +
+                                                '<select type="type" class="form-control" name="type" id="template">' +
                                                     '#{options}' +
                                                 '</select></br>' +
-                                                '<div class = "form-group">' +
-                                                    '<label for = "info">Information</label>' +
-                                                    '<input type = "text" id = "info" class = "form-control" name = "info">' +
-                                                '</div>' +
                                                 '<button type="submit"  class="btn btn-default">Submit</button>' +
                                             '</form>' +
                                         '</div>' +
@@ -118,27 +111,6 @@ var machines= [
     "type": "hadoop-worker"
   }
 ];
-var types = ["hadoop-server", "hadoop-worker", "taverna-server"];
 
 
-/**
-Hard coding a JSON to test this 
-*/
-var managers = [
-  {
-    "instances": 3,
-    "created": "07/09/2014 12:48:30",
-    "updated": null,
-    "info": "Some information",
-    "name": "Manager 1",
-    "id": 1
-  },
-  {
-    "instances": 0,
-    "created": "07/24/2014 10:22:06",
-    "updated": null,
-    "info": "Info",
-    "name": "Manager 2",
-    "id": 2
-  }
-];
+var nodeTemplates = [];
