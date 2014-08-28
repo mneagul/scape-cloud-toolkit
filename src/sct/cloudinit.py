@@ -64,8 +64,8 @@ class CloudConfig(BaseHandler):
         packages.append(package_spec)
 
     def set_option(self, key, value):
-        if key in self.__configuration:
-            raise KeyError("Duplicate key %s. It already has the value: %s", key, self.__configuration[key])
+#        if key in self.__configuration:
+#            raise KeyError("Duplicate key %s. It already has the value: %s", key, self.__configuration[key])
         self.__configuration[key] = value
 
 
