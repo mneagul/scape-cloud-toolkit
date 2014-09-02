@@ -1,8 +1,8 @@
 var table = $("#manager-list");
 
-function display(id){
-    var tr = document.getElementsByClassName('hide' + id);
-    var img = document.getElementById('img' + id);
+function display(name){
+    var tr = document.getElementsByClassName('hide' + name);
+    var img = document.getElementById('img' + name);
     for (var i = 0; i < tr.length; i++) { // tr is the list of row to hide/show
         if (tr[i].style.display == 'none'){
             tr[i].style.display = '';
@@ -20,8 +20,8 @@ function display(id){
  *Function to append the managers to the table
  */
 function appendManagers(elem){
-    var img = elem.instances > 0 ? '/static/img/chevron.png ' : '"" ';
-    var row = $.tmpl(tableTemplate.th, {options: 'onClick="display(' + elem.id + ')"', header: '<img src=' + img + ' id="img' + elem.id + '">'});
+    var img = Object.size(elem.templates) > 0 ? '/static/img/chevron.png ' : '"" ';
+    var row = $.tmpl(tableTemplate.th, {options: 'onClick="display(' + elem.name + ')"', header: '<img src=' + img + ' id="img' + elem.name + '">'});
         //'<tr><th onClick="display(' + elem.id + ')">';
     //row += '<img src=' + img + ' id="img' + elem.id + '"></th>'; //add carret for dropdown
     row +=  $.tmpl(tableTemplate.td, {cell: elem.id});//   '<td>' + elem.id + '</td>'; //add manager id
@@ -29,15 +29,23 @@ function appendManagers(elem){
     row += $.tmpl(tableTemplate.td, {cell: 'Manager'});
     // Add action buttons
     var actionButtons = '';
-    actionButtons += $.tmpl(buttonTemplate.modal, {class: 'success', id: elem.id, message: 'Add Machine', action: 'add'});
-    actionButtons += $.tmpl(buttonTemplate.modal, {class: 'danger', id: elem.id, message: 'Destroy', action: 'del'});
-    actionButtons += $.tmpl(buttonTemplate.popover, {class: 'info', id: elem.name, place: 'right', message: 'Info', content: elem.info});
+    actionButtons += $.tmpl(buttonTemplate.modal, {class: 'success', name: elem.name, message: 'Add Machine', action: 'add'});
+    actionButtons += $.tmpl(buttonTemplate.modal, {class: 'danger', name: elem.name, message: 'Destroy', action: 'del'});
+    actionButtons += $.tmpl(buttonTemplate.popover, {class: 'info', name: elem.name, place: 'right', message: 'Info', content: elem.info});
     row += $.tmpl(tableTemplate.td, {cell: actionButtons});
     row = $.tmpl(tableTemplate.tr, {row: row});
     table.append(row);
 
     //machines = query via RPC
-    for(var i = 0; i < elem.instances; i++){
+    
+    $("[data-toggle=popover]").popover({html:true})
+    
+    
+    for(tmpl in elem.templates){//Continue from here
+        
+        /*
+        console.log(elem.templates);
+        
         var message = 'Start';
         if(machines[i].running == "true"){
             message = 'Stop';
@@ -45,8 +53,18 @@ function appendManagers(elem){
 
         //Create buttons           
         var run = $.tmpl(buttonTemplate.func, {class: (message == 'Stop' ? 'warning' : 'success'), func: 'modifyMachineState', params: (elem.id + ',' + machines[i].id + ',' + machines[i].running), message: message});
-        var destroy = $.tmpl(buttonTemplate.modal, {class: 'danger', id: 'M'+elem.id+'T'+machines[i].id, message: 'Destroy', action: 'del'});
-        var info = $.tmpl(buttonTemplate.popover, {class: 'info', id: elem.id + '' + machines[i].id, place: 'right', message: 'Info', content: machines[i].info});
+        */
+        var node_info = '';
+        node_info += '<li>Count: ' + elem.templates[tmpl].count + '</li>';
+        node_info += '<li>Nodes:';
+        node_info += '<ol>';
+        
+        for(var i = 0; i < elem.templates[tmpl].nodes.length; i++){
+            node_info += '<li>' + i + '</li>';
+        }
+        
+        var destroy = $.tmpl(buttonTemplate.modal, {class: 'danger', name: tmpl, message: 'Destroy', action: 'del'});
+        var info = $.tmpl(buttonTemplate.popover, {class: 'info', name: elem.name + '' + machines[i].name, place: 'right', message: 'Info', content: machines[i].info});
 
         
 
@@ -80,7 +98,7 @@ function appendManagers(elem){
         options += '<option>' + element +  '</option>';
     });
 
-    table.append($.tmpl(managerDelDiv, {id: elem.id, name: "'" + elem.name + "'"}));
+    table.append($.tmpl(managerDelDiv, {id: elem.id, name: elem.name}));
     table.append($.tmpl(machineAddDIV, {id: elem.id, name: elem.name, options: options}));
 
     $(function () {

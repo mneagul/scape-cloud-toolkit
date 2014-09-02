@@ -1,10 +1,5 @@
 
-/*To be implemented
-add_cluster_node(v)  delete_cluster_node  get_node_templates(v)         rpc_methods
-create_cluster(v)    get_cluster_info(also show nodes !!!!)     get_node_templates_detail(?)
-delete_cluster(v)    get_clusters(v)         help  
 
-*/
 
 Object.size = function(obj) {
     var size = 0, key;
@@ -84,14 +79,17 @@ function addMachine(){
             url: '/api/',
         }, {
             success : function(result) {
+                console.log(typeof(result));
                 if(result == "true"){
-                    alert("Created a machine with " + data.type + "template");
+                    alert("Created a machine with " + data.type + " template");
                 }else{
                     alert("A problem occured. The machine couldn't be created.");
                 }
             },
             error : function(error) {
+                console.error(error);
                 alert("An error occured: " + error);
+                
             }
 
         });
@@ -158,12 +156,11 @@ function showClusters(){
                     id += 1;
                     showClusterInfo(cluster.name);
                 });
-                for(key in clusterList){
-                    appendManagers(clusterList[key]);
-                }
+                
             },
             error : function(error) {
                 alert("An error occured: " + error);
+                console.log(error);
             }
 
         });
@@ -176,13 +173,17 @@ function showClusterInfo(name){
         url: '/api/',
     }, {
         success : function(result) {
-            var info = 'Module repository: ' + result.global['module-repository'] + ' </br>' +
-                            'PuppetDB: ' + result.global.puppetdb + '</br>' ;
+            var info = '<ul> <li> <a href=' + result.global['module-repository'] + '>Module repository </a> </li>' +
+                            '<li> <a href=' + result.global.puppetdb + '>PuppetDB</a></li></ul>' ;
             $('#popover' + name).attr('data-content', info);
             
             clusterList[name].info = info;
-            clusterList[name].instances = Object.size(result.templates);
-            console.log(result.templates);
+            clusterList[name].templates = result.templates;
+            console.info(clusterList[name].templates);
+            
+            for(key in clusterList){
+                    appendManagers(clusterList[key]);
+            }
 
         },
         error : function(error) {
