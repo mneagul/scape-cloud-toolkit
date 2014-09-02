@@ -8,8 +8,8 @@ var tableTemplate = {
 }
 
 var buttonTemplate = {
-    modal : '<button type="button" class="btn btn-#{class}" data-toggle="modal" data-target=".bs-#{action}-modal-sm#{id}">#{message}</button> ',
-    popover : '<button type="button" id="popover#{id}" class="btn btn-#{class}" data-container="body" data-toggle="popover" data-placement="#{place}" data-content="#{content}">#{message}</button> ',
+    modal : '<button type="button" class="btn btn-#{class}" data-toggle="modal" data-target=".bs-#{action}-modal-sm#{name}">#{message}</button> ',
+    popover : '<button type="button" id="popover#{name}" class="btn btn-#{class}" data-container="body" data-toggle="popover" data-placement="#{place}" data-content="#{content}">#{message}</button> ',
     func : '<button type="button" class="btn btn-#{class}"  onClick="#{func}(#{params})">#{message}</button> '
 }
 
@@ -32,7 +32,7 @@ var machineDelDiv = '<div class = "modal fade bs-del-modal-smM#{mID}T#{tID}">' +
                             '</div>' + //modal dialog
                         '</div>'; //end of modal
 
-var managerDelDiv = '<div class = "modal fade bs-del-modal-sm#{id}">' + 
+var managerDelDiv = '<div class = "modal fade bs-del-modal-sm#{name}">' + 
                         '<div class = "modal-dialog">' + 
                             '<div class = "modal-content">' + 
                                 '<div class = "modal-header">' + 
@@ -43,14 +43,14 @@ var managerDelDiv = '<div class = "modal fade bs-del-modal-sm#{id}">' +
                                     'Destroy manager <b>#{name}</b>?' +
                                 '</div>' +
                                 '<div class="modal-footer">' + 
-                                    '<button type="button" class="btn btn-danger"  data-dismiss="modal" onClick="deleteManager(#{name})" ng-model="success">Destroy</button>' +
+                                    '<button type="button" class="btn btn-danger"  data-dismiss="modal" onClick="deleteManager(\'#{name}\')" ng-model="success">Destroy</button>' +
                                     '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
                                 '</div>' +
                             '</div>' + //modal content
                         '</div>' + //modal dialog
                     '</div>'; 
 
-var machineAddDIV = '<div id="addMachineModal" class="modal fade bs-add-modal-sm#{id}">' + 
+var machineAddDIV = '<div id="addMachineModal" class="modal fade bs-add-modal-sm#{name}">' + 
                                 '<div class="modal-dialog">' + 
                                     '<div class="modal-content">' +
                                         '<div class="modal-header">' +
