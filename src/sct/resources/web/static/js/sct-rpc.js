@@ -26,11 +26,11 @@ function modifyMachineState(managerID, machineID, running){
     
 }
 
-function deleteMachine(managerID, machineID){
+function deleteMachine(templateName, clusterName){
     //Send request to delete the machine
     
     
-    console.log('Sent request to delete machine ' + machineID + ' managed by ' + managerID);
+    console.log('Sent request to delete machine ' + templateName + ' managed by ' + clusterName);
 
 }
 
@@ -79,8 +79,7 @@ function addMachine(){
             url: '/api/',
         }, {
             success : function(result) {
-                console.log(typeof(result));
-                if(result == "true"){
+                if(result == true){
                     alert("Created a machine with " + data.type + " template");
                 }else{
                     alert("A problem occured. The machine couldn't be created.");
@@ -179,7 +178,6 @@ function showClusterInfo(name){
             
             clusterList[name].info = info;
             clusterList[name].templates = result.templates;
-            console.info(clusterList[name].templates);
             
             for(key in clusterList){
                     appendManagers(clusterList[key]);
