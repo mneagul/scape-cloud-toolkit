@@ -16,11 +16,9 @@ function modifyMachineState(managerID, machineID, running){
     if(running == 'true'){
         //Send request to stop the machine
         
-        console.log('Sent request to stop machine ' + machineID + ' managed by ' + managerID);
     }else{
         //Send request to start the machine
         
-        console.log('Sent request to start machine ' + machineID + ' managed by ' + managerID);
     }
     
     
@@ -30,7 +28,6 @@ function deleteMachine(templateName, clusterName){
     //Send request to delete the machine
     
     
-    console.log('Sent request to delete machine ' + templateName + ' managed by ' + clusterName);
 
 }
 
@@ -42,27 +39,32 @@ function deleteCluster(mName){
             url: '/api/',
         }, {
             success : function(result) {
+                $("#alert-wait-cluster-destroyed").remove();
+                
                 mess = 'Cluster ' + mName + ' has been destroyed.';
-                $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "destroyed"}));
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: successIcon, message: mess, id: "destroyed"}));
                 $('#alert-destroyed').on('closed.bs.alert', function () {
                   showClusters();
                 });
             },
             error : function(error) {
-                $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: error.message, id: "destroyed"}));
+                console.error('sct-rpc.deleteCluster: ' + error.message);
+                 $("#alert-wait-cluster-destroyed").remove();
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "destroyed"}));
                 
             }
 
         });
     
-    console.log('Sent request to delete cluster managed by ' + name);
+    mess = 'Destroying cluster ' + mName + '...';
+    $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: waitAnimation, message: mess, id: "wait-cluster-destroyed"}));
 }
 
 
 
-function addMachine(){
+function addMachine(mName){
     var data = {};
-    $('#addForm').find('input, textarea, select').each(function(i, field) {
+    $('#addForm' + mName).find('input, textarea, select').each(function(i, field) {
         data[field.name] = field.value;
     });
     
@@ -82,27 +84,31 @@ function addMachine(){
         }, {
             success : function(result) {
                 if(result == true){
-                    mess = "Created a machine with " + data.type + " template inside " + data.mName + " cluster.";
-                    $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "created"}));
+                    $("#alert-wait-created").remove();
+                    
+                    mess = "Created a " + data.type + " node in " + data.mName + " cluster.";
+                    $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: successIcon, message: mess, id: "created"}));
                     $('#alert-created').on('closed.bs.alert', function () {
                       showClusterInfo(data.mName);
                     });
                 }else{
-                    mess = 'A problem occured. Verify server logs.';
-                    $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: mess, id: "created"}));
+                    $("#alert-wait-created").remove();
+                    mess = 'Could not add a ' + data.type + ' node to cluster ' + mName + '. Verify server logs.';
+                    $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: mess, id: "created"}));
                 }
             },
             error : function(error) {
-                $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: error.message, id: "created"}));
+                console.error('sct-rpc.addMachine: ' + error.message);
+                $("#alert-wait-created").remove();
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "created"}));
                 
             }
 
         });
         
         $("#addMachineModal").modal('hide');
-        mess = '<span class="spinner active"><i class="icon-spin icon-refresh"></i></span>';
-        mess += "Sent request to add a " + data.type + " template inside " + data.mName + " cluster.";
-        $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "created"}));
+        mess = "Adding " + data.type + " node to " + data.mName + " cluster...";
+        $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: waitAnimation, message: mess, id: "wait-created"}));
     }
     
 }
@@ -130,25 +136,59 @@ function addManager(){
             url: '/api/',
         }, {
             success : function(result) {
+                $('#alert-wait-cluster-created').remove();
+                
                 
                 mess = 'Cluster ' + data.name + ' has been instantiated.';
-                $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "instantiated"}));
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: successIcon, message: mess, id: "instantiated"}));
                 $('#alert-instantiated').on('closed.bs.alert', function () {
                   showClusters();
                 });
             },
             error : function(error) {
-                $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: error.message, id: "instantiated"}));
+                console.error('sct-rpc.addManager: ' + error.message);
+                $('#alert-wait-cluster-created').remove();
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "instantiated"}));
             }
 
         });
 
         $("#addManagerModal").modal('hide');
+        mess = "Creating cluster " + data.name + '...';
+        $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: waitAnimation, message: mess, id: "wait-cluster-created"}));
     }
 
     
     
 }
+
+function showClusterInfo(name){
+    
+    $.jsonrpc({
+        method : 'get_cluster_info',
+        params : {name: name},
+        url: '/api/',
+    }, {
+        success : function(result) {
+            var info = '<ul> <li> <a target="_blank" href=' + result.global['module-repository'] + '>Module repository </a> </li>' +
+                            '<li> <a target="_blank" href=' + result.global.puppetdb + '>PuppetDB</a></li></ul>' ;
+            $('#popover' + name).attr('data-content', info);
+            
+            clusterList[name].info = info;
+            clusterList[name].templates = result.templates;
+            for(key in clusterList[name].templates){
+                appendNode(clusterList[name], key);
+            }
+            
+        },
+        error : function(error) {
+            console.error('sct-rpc.showClusters: ' + error.message);
+        },
+
+    });
+
+}
+
 
 function showClusters(){
     clusterList = {};
@@ -178,39 +218,12 @@ function showClusters(){
                 
             },
             error : function(error) {
-                alert("An error occured: " + error.message);
-                console.log(error.message);
+                console.error('sct-rpc.showClusters: ' + error.message);
             }
 
         });
 }
 
-function showClusterInfo(name){
-    console.log('Called show!');
-    $.jsonrpc({
-        method : 'get_cluster_info',
-        params : {name: name},
-        url: '/api/',
-    }, {
-        success : function(result) {
-            var info = '<ul> <li> <a href=' + result.global['module-repository'] + '>Module repository </a> </li>' +
-                            '<li> <a href=' + result.global.puppetdb + '>PuppetDB</a></li></ul>' ;
-            $('#popover' + name).attr('data-content', info);
-            
-            clusterList[name].info = info;
-            clusterList[name].templates = result.templates;
-            for(key in clusterList[name].templates){
-                appendNode(clusterList[name], key);
-            }
-            
-        },
-        error : function(error) {
-            alert("An error occured: " + error.message);
-        }
-
-    });
-
-}
 
 function getTemplates(){
     $.jsonrpc({
@@ -224,7 +237,7 @@ function getTemplates(){
                 });
             },
             error : function(error) {
-                alert("An error occured: " + error.message);
+                console.error("sct-rpc.getTemplates: " + error.message);
                 
             }
 

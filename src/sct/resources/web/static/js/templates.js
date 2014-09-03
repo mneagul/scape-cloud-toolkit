@@ -12,6 +12,10 @@ var alertTemplate = '<div class="alert alert-#{type} fade in" id=alert-#{id}>' +
                         '<p><strong>#{strong}</strong> #{message}</p>' +
                     '</div>';
 
+var waitAnimation = '<span class="glyphicon glyphicon-time glyphicon-refresh-animate"></span>';
+var successIcon = '<span class="glyphicon glyphicon-ok"></span>';
+var errorIcon = '<span class="glyphicon glyphicon-remove-circle"></span>';
+
 
 var buttonTemplate = {
     modal : '<button type="button" class="btn btn-#{class}" data-toggle="modal" data-target=".bs-#{action}-modal-sm#{name}">#{message}</button> ',
@@ -64,7 +68,7 @@ var machineAddDIV = '<div id="addMachineModal" class="modal fade bs-add-modal-sm
                                             '<h4 class="modal-title">Add a node in cluster #{name}</h4>' + 
                                         '</div>' + //modal header
                                         '<div class="modal-body">' + 
-                                            '<form id="addForm" role="form" action="javascript:addMachine()">' +
+                                            '<form id="addForm#{name}" role="form" action="javascript:addMachine(\'#{name}\')">' +
                                                 '<input type="hidden" name="mName" value="#{name}"></input>' +
                                                 
                                                 '<label for="type">Select template</label>' +

@@ -26,8 +26,7 @@ function tooglePopover(){
 function display(name){
     var tr = $('.cluster' + name + 'Child');
     var span = document.getElementById('span' + name);
-    for (var i = 0; i < tr.length; i++) { // tr is the list of row to hide/show
-        console.log(tr[i]);
+    for (var i = 0; i < tr.length; i++) { // tr is the list of row to hide/s
         if (tr[i].style.display == 'none'){
             tr[i].style.display = '';
             $('#span' + name).attr('class', 'glyphicon glyphicon-list-alt');
@@ -37,6 +36,7 @@ function display(name){
             $('#span' + name).attr('class', 'glyphicon glyphicon-chevron-down');
         }
     }
+    
 }
 
 
@@ -50,7 +50,6 @@ function display(name){
  *Function to append the managers to the table
  */
 function appendManagers(elem){
-    console.log('CAlled');
     var row = $.tmpl(tableTemplate.td, {options: 'onClick="display(\'' + elem.name + '\')"', cell: '<i id="span' + elem.name + '"></i>'});
         //'<tr><th onClick="display(' + elem.id + ')">';
     //row += '<img src=' + img + ' id="img' + elem.id + '"></th>'; //add carret for dropdown

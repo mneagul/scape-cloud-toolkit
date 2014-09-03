@@ -9,7 +9,6 @@ and open the template in the editor.
     <head>
         <meta charset="UTF-8">
         <title>SCAPE Cloud Toolkit</title>
-        <script src="/static/js/jquery.js"></script>
         <div id="header"></div>
     </head>
     <body>
@@ -33,7 +32,7 @@ and open the template in the editor.
                     <div class="panel-body" id="alert-div">
                         
                     </div>  
-                    <table class="table table-condensed" id="cluster-table">
+                    <table class="table table-striped" id="cluster-table">
                         <thead>
                         <TR> 
                             <th width = 3%>  </th>
@@ -89,18 +88,20 @@ and open the template in the editor.
 
         <div id="menuRight">
         </div>
+        
+        <script src="/static/js/jquery.js"></script>
+        <script src="/static/js/jquery.jsonrpc.js"></script>
         <script>
             $("#header").load("/static/header.html");
             $("#menuLeft").load("/static/menuLeft.html");
             $("#menuRight").load("/static/menuRight.html");
         </script>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular.min.js"></script>
         <script src="/static/js/templates.js"></script>
         <script src="/static/js/sct.js"></script>
         <script src="/static/js/sct-rpc.js"></script>
         <script src="/static/js/jquery.tmpl.1.1.1.js"></script>
-        <script src="/static/js/jquery.jsonrpc.js"></script>
+        
     
     </body>
 </html>
