@@ -34,7 +34,7 @@ function deleteMachine(templateName, clusterName){
 
 }
 
-function deleteManager(mName){
+function deleteCluster(mName){
     //Send request to delete the whole cluster
     $.jsonrpc({
             method : 'delete_cluster',
@@ -42,11 +42,14 @@ function deleteManager(mName){
             url: '/api/',
         }, {
             success : function(result) {
-                alert('Cluster ' + mName + ' has been destroyed.');
-                //location.reload();
+                mess = 'Cluster ' + mName + ' has been destroyed.';
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "destroyed"}));
+                $('#alert-destroyed').on('closed.bs.alert', function () {
+                  showClusters();
+                });
             },
             error : function(error) {
-                alert("An error occured: " + error);
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: error.message, id: "destroyed"}));
                 
             }
 
@@ -65,7 +68,6 @@ function addMachine(){
     
     var type = $("#template option:selected").html();
     
-    console.log(data.mName + " " + data.type);
     //Check if all fields are filled in.
     if(!data.type){
         alert('Some fields are not filled in! Fill in name and select type in order to create a machine.');
@@ -80,21 +82,27 @@ function addMachine(){
         }, {
             success : function(result) {
                 if(result == true){
-                    alert("Created a machine with " + data.type + " template");
+                    mess = "Created a machine with " + data.type + " template inside " + data.mName + " cluster.";
+                    $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "created"}));
+                    $('#alert-created').on('closed.bs.alert', function () {
+                      showClusterInfo(data.mName);
+                    });
                 }else{
-                    alert("A problem occured. The machine couldn't be created.");
+                    mess = 'A problem occured. Verify server logs.';
+                    $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: mess, id: "created"}));
                 }
             },
             error : function(error) {
-                console.error(error);
-                alert("An error occured: " + error);
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: error.message, id: "created"}));
                 
             }
 
         });
         
-        
         $("#addMachineModal").modal('hide');
+        mess = '<span class="spinner"><i class="icon-spin icon-refresh"></i></span>';
+        mess += "Sent request to add a " + data.type + " template inside " + data.mName + " cluster.";
+        $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "created"}));
     }
     
 }
@@ -106,7 +114,7 @@ function addManager(){
     });
     
     if(!data['name']){
-        alert('You haven\'t provide a name for the manager.');
+        alert('You have not provide a name for the manager.');
     }else{
         //Send request to create a manager;
 
@@ -122,10 +130,15 @@ function addManager(){
             url: '/api/',
         }, {
             success : function(result) {
-                alert('Cluster manager' + data.name + 'has been instantiated.');
+                
+                mess = 'Cluster ' + data.name + ' has been instantiated.';
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "instantiated"}));
+                $('#alert-instantiated').on('closed.bs.alert', function () {
+                  showClusters();
+                });
             },
             error : function(error) {
-                alert("An error occured: " + error);
+                $("#alert-div").append($.tmpl(alertTemplate, {type: "error", strong: 'Error: ', message: error.message, id: "instantiated"}));
             }
 
         });
@@ -139,6 +152,8 @@ function addManager(){
 
 function showClusters(){
     clusterList = {};
+    $("#manager-list > tr").replaceWith('');
+    $("#manager-list > div").replaceWith('');
     
     $.jsonrpc({
             method : 'get_clusters',
@@ -154,18 +169,24 @@ function showClusters(){
                     clusterList[cluster.name] = cluster;
                     id += 1;
                     showClusterInfo(cluster.name);
-                });
+                    
+                });               
+                
+                for(key in clusterList){
+                    appendManagers(clusterList[key]);
+                }
                 
             },
             error : function(error) {
-                alert("An error occured: " + error);
-                console.log(error);
+                alert("An error occured: " + error.message);
+                console.log(error.message);
             }
 
         });
 }
 
 function showClusterInfo(name){
+    console.log('Called show!');
     $.jsonrpc({
         method : 'get_cluster_info',
         params : {name: name},
@@ -178,14 +199,13 @@ function showClusterInfo(name){
             
             clusterList[name].info = info;
             clusterList[name].templates = result.templates;
-            
-            for(key in clusterList){
-                    appendManagers(clusterList[key]);
+            for(key in clusterList[name].templates){
+                appendNode(clusterList[name], key);
             }
-
+            
         },
         error : function(error) {
-            alert("An error occured: " + error);
+            alert("An error occured: " + error.message);
         }
 
     });
@@ -204,7 +224,8 @@ function getTemplates(){
                 });
             },
             error : function(error) {
-                alert("An error occured: " + error);
+                alert("An error occured: " + error.message);
+                
             }
 
         });

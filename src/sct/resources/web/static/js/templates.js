@@ -1,11 +1,17 @@
 /*Templates*/
 
 var tableTemplate = {
-    tr : '<tr>#{row}</tr>',
-    mtr: '<tr style="display:none" class="hide#{name}">#{row}</tr>',
+    tr : '<tr #{options}>#{row}</tr>',
+    mtr: '<tr style="display:none" id="cluster#{name}Child">#{row}</tr>',
     th : '<th #{options}>#{header}</th>',
     td : '<td #{options}>#{cell}</td>'
 }
+
+var alertTemplate = '<div class="alert alert-#{type} fade in" id=alert-#{id}>' +
+                        '<a href="#" class="close" data-dismiss="alert">&times;</a>' + 
+                        '<p><strong>#{strong}</strong> #{message}</p>' +
+                    '</div>';
+
 
 var buttonTemplate = {
     modal : '<button type="button" class="btn btn-#{class}" data-toggle="modal" data-target=".bs-#{action}-modal-sm#{name}">#{message}</button> ',
@@ -43,7 +49,7 @@ var managerDelDiv = '<div class = "modal fade bs-del-modal-sm#{name}">' +
                                     'Destroy manager <b>#{name}</b>?' +
                                 '</div>' +
                                 '<div class="modal-footer">' + 
-                                    '<button type="button" class="btn btn-danger"  data-dismiss="modal" onClick="deleteManager(\'#{name}\')" ng-model="success">Destroy</button>' +
+                                    '<button type="button" class="btn btn-danger"  data-dismiss="modal" onClick="deleteCluster(\'#{name}\')" ng-model="success">Destroy</button>' +
                                     '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
                                 '</div>' +
                             '</div>' + //modal content

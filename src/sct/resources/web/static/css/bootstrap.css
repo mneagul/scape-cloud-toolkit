@@ -2726,6 +2726,11 @@ input[type="button"].btn-block {
     content: "\2b";
 }
 
+.glyphicon-none:before {
+    content: "\2122";
+    color: transparent;
+}
+
 .glyphicon-euro:before {
     content: "\20ac";
 }

@@ -9,10 +9,11 @@ and open the template in the editor.
     <head>
         <meta charset="UTF-8">
         <title>SCAPE Cloud Toolkit</title>
-        <script src="static/js/jquery.js"></script>
+        <script src="/static/js/jquery.js"></script>
+        <div id="header"></div>
     </head>
     <body>
-        <div id="header"></div>
+        
         <div id="menuLeft"></div>
         
 
@@ -29,10 +30,11 @@ and open the template in the editor.
                        
 
                     </div>
-                    <div class="panel-body">
-                        <p>Some default panel content here.</p>
+                    <div class="panel-body" id="alert-div">
+                        
                     </div>  
-                    <table class="table table-hover" id="manager-list">
+                    <table class="table table-condensed" id="cluster-table">
+                        <thead>
                         <TR> 
                             <th width = 3%>  </th>
                             <TH width = 3%> ID </TH> 
@@ -40,7 +42,10 @@ and open the template in the editor.
                             <TH width = 20%> Type </TH> 
                             <TH width = 45%> Action </TH>
                         </TR>
+                        </thead>
+                        <tbody id = "manager-list">
                         
+                        </tbody>
 
 
                     </table>
