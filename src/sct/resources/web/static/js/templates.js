@@ -2,7 +2,7 @@
 
 var tableTemplate = {
     tr : '<tr #{options}>#{row}</tr>',
-    mtr: '<tr style="display:none" id="cluster#{name}Child">#{row}</tr>',
+    mtr: '<tr style="display: none" class="cluster#{name}Child" id=c-#{id}>#{row}</tr>',
     th : '<th #{options}>#{header}</th>',
     td : '<td #{options}>#{cell}</td>'
 }

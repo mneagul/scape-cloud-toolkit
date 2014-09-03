@@ -100,7 +100,7 @@ function addMachine(){
         });
         
         $("#addMachineModal").modal('hide');
-        mess = '<span class="spinner"><i class="icon-spin icon-refresh"></i></span>';
+        mess = '<span class="spinner active"><i class="icon-spin icon-refresh"></i></span>';
         mess += "Sent request to add a " + data.type + " template inside " + data.mName + " cluster.";
         $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: 'Success: ', message: mess, id: "created"}));
     }

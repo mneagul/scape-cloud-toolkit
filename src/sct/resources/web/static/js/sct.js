@@ -24,15 +24,16 @@ function tooglePopover(){
 
 
 function display(name){
-    var tr = $('#cluster' + name + 'Child');
+    var tr = $('.cluster' + name + 'Child');
     var span = document.getElementById('span' + name);
     for (var i = 0; i < tr.length; i++) { // tr is the list of row to hide/show
+        console.log(tr[i]);
         if (tr[i].style.display == 'none'){
             tr[i].style.display = '';
             $('#span' + name).attr('class', 'glyphicon glyphicon-list-alt');
         }
         else{
-            tr[i].style.display = 'none';
+            tr[i].style.display = "none";
             $('#span' + name).attr('class', 'glyphicon glyphicon-chevron-down');
         }
     }
@@ -100,7 +101,7 @@ function appendNode(elem, tmpl){
     
     hddCount = '';
     for(var i = 0; i < elem.templates[tmpl].count; i++){
-        hddCount += '<span class="glyphicon glyphicon-hdd"></span>';
+        hddCount += '<span class="glyphicon glyphicon-hdd"></span> ';
     }
 
     //Information about the machine
@@ -109,7 +110,7 @@ function appendNode(elem, tmpl){
     machineRow +=  $.tmpl(tableTemplate.td, {cell: hddCount});
     machineRow +=  $.tmpl(tableTemplate.td, {cell: tmpl});
     machineRow +=  $.tmpl(tableTemplate.td, {cell: destroy + info, options: 'align="right"'});
-    machineRow = $.tmpl(tableTemplate.mtr, {row: machineRow, name: elem.name});
+    machineRow = $.tmpl(tableTemplate.mtr, {row: machineRow, name: elem.name, id: tmpl});
 
 
 
