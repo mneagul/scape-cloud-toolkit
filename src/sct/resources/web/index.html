@@ -9,6 +9,9 @@ and open the template in the editor.
     <head>
         <meta charset="UTF-8">
         <title>SCAPE Cloud Toolkit</title>
+        <link rel="icon" 
+            type="image/png" 
+            href="/static/img/favicon.png" />
         <div id="header"></div>
     </head>
     <body>
@@ -18,13 +21,13 @@ and open the template in the editor.
 
         <div class="row-fluid" id="conteneur">
 
-            <div class="col-md-8">
+            <div class="col-md-10">
                 <div ng-hide="false" id="r" class="panel panel-primary">
                     <!-- Default panel contents -->
                     <div class="panel-heading">
-                         <h3>Managers List</h3></br>
-<!--                        New manager button-->
-                        <button type='button' class='btn btn-info' data-toggle='modal' data-target=".bs-add-modal-sm">New Manager</button>
+                         <h3>Clusters List</h3></br>
+<!--                        New cluster button-->
+                        <button type='button' class='btn btn-info' data-toggle='modal' data-target=".bs-add-modal-sm">New Cluster</button>
                         
                        
 
@@ -39,10 +42,10 @@ and open the template in the editor.
                             <TH width = 3%> ID </TH> 
                             <TH width = 24%> Name </TH> 
                             <TH width = 20%> Type </TH> 
-                            <TH width = 45%> Action </TH>
+                            <TH width = 45% style="text-align:center"> Action </TH>
                         </TR>
                         </thead>
-                        <tbody id = "manager-list">
+                        <tbody id = "cluster-list">
                         
                         </tbody>
 
@@ -55,16 +58,16 @@ and open the template in the editor.
         </div>
 
 
-        <div id="addManagerModal" class="modal fade bs-add-modal-sm"><!-- Add a new Manager -->
+        <div id="addClusterModal" class="modal fade bs-add-modal-sm"><!-- Add a new Cluster -->
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Add new Manager</h4>
+                        <h4 class="modal-title">Add new Cluster</h4>
                     </div>
                     <div class="modal-body">
 
-                        <form id="addManager" role="form" action='javascript:addManager()'>
+                        <form id="addCluster" role="form" action='javascript:addCluster()'>
                             <div class="form-group">
                                 <label for="name">Name</label>
                                 <input type="name" id="name" class="form-control" name="name">

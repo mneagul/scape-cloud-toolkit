@@ -11,21 +11,21 @@ Object.size = function(obj) {
 
 var clusterList = {};
 
-function modifyMachineState(managerID, machineID, running){
+function modifyNodeState(clusterID, nodeID, running){
     
     if(running == 'true'){
-        //Send request to stop the machine
+        //Send request to stop the node
         
     }else{
-        //Send request to start the machine
+        //Send request to start the node
         
     }
     
     
 }
 
-function deleteMachine(templateName, clusterName){
-    //Send request to delete the machine
+function deleteNode(templateName, clusterName){
+    //Send request to delete the node
     
     
 
@@ -62,7 +62,7 @@ function deleteCluster(mName){
 
 
 
-function addMachine(mName){
+function addNode(mName){
     var data = {};
     $('#addForm' + mName).find('input, textarea, select').each(function(i, field) {
         data[field.name] = field.value;
@@ -72,9 +72,9 @@ function addMachine(mName){
     
     //Check if all fields are filled in.
     if(!data.type){
-        alert('Some fields are not filled in! Fill in name and select type in order to create a machine.');
+        alert('Some fields are not filled in! Fill in name and select type in order to create a node.');
     }else{
-        //Send request to create a machine
+        //Send request to create a node
         
         $.jsonrpc({
             method : 'add_cluster_node',
@@ -98,7 +98,7 @@ function addMachine(mName){
                 }
             },
             error : function(error) {
-                console.error('sct-rpc.addMachine: ' + error.message);
+                console.error('sct-rpc.addNode: ' + error.message);
                 $("#alert-wait-created").remove();
                 $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "created"}));
                 
@@ -106,23 +106,23 @@ function addMachine(mName){
 
         });
         
-        $("#addMachineModal").modal('hide');
+        $("#addNodeModal").modal('hide');
         mess = "Adding " + data.type + " node to " + data.mName + " cluster...";
         $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: waitAnimation, message: mess, id: "wait-created"}));
     }
     
 }
 
-function addManager(){
+function addCluster(){
     var data = {};
-    $('#addManager').find('input').each(function(i, field) {
+    $('#addCluster').find('input').each(function(i, field) {
         data[field.name] = field.value;
     });
     
     if(!data['name']){
-        alert('You have not provide a name for the manager.');
+        alert('You have not provide a name for the cluster.');
     }else{
-        //Send request to create a manager;
+        //Send request to create a cluster;
 
         $.jsonrpc({
             method : 'create_cluster',
@@ -146,14 +146,14 @@ function addManager(){
                 });
             },
             error : function(error) {
-                console.error('sct-rpc.addManager: ' + error.message);
+                console.error('sct-rpc.addCluster: ' + error.message);
                 $('#alert-wait-cluster-created').remove();
                 $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "instantiated"}));
             }
 
         });
 
-        $("#addManagerModal").modal('hide');
+        $("#addClusterModal").modal('hide');
         mess = "Creating cluster " + data.name + '...';
         $("#alert-div").append($.tmpl(alertTemplate, {type: "success", strong: waitAnimation, message: mess, id: "wait-cluster-created"}));
     }
@@ -192,8 +192,8 @@ function showClusterInfo(name){
 
 function showClusters(){
     clusterList = {};
-    $("#manager-list > tr").replaceWith('');
-    $("#manager-list > div").replaceWith('');
+    $("#cluster-list > tr").replaceWith('');
+    $("#cluster-list > div").replaceWith('');
     
     $.jsonrpc({
             method : 'get_clusters',
@@ -213,7 +213,7 @@ function showClusters(){
                 });               
                 
                 for(key in clusterList){
-                    appendManagers(clusterList[key]);
+                    appendClusters(clusterList[key]);
                 }
                 
             },
