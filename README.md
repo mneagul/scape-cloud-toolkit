@@ -62,7 +62,7 @@ Define the default size of a image that will be used in a cluster:
 
 Define the default image that will be used in a cluster:
 
-`~/scape/bin/sct-cli -vvvvv cloud-config registry cluster.default_image=emi-50733A74A`
+`~/scape/bin/sct-cli -vvvvv cloud-config registry cluster.default_image=emi-89D67BBA`
 
 Define the default security group:
 
