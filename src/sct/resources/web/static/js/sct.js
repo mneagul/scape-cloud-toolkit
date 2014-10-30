@@ -1,4 +1,4 @@
-var table = $("#manager-list");
+var table = $("#cluster-list");
 var nodePlace = function (name){
     return $("#cluster" + name + ':last');
 }
@@ -47,21 +47,21 @@ function display(name){
 
 
 /*
- *Function to append the managers to the table
+ *Function to append the clusters to the table
  */
-function appendManagers(elem){
+function appendClusters(elem){
     var row = $.tmpl(tableTemplate.td, {options: 'onClick="display(\'' + elem.name + '\')"', cell: '<i id="span' + elem.name + '"></i>'});
         //'<tr><th onClick="display(' + elem.id + ')">';
     //row += '<img src=' + img + ' id="img' + elem.id + '"></th>'; //add carret for dropdown
-    row +=  $.tmpl(tableTemplate.td, {cell: elem.id, options: 'onClick="display(\'' + elem.name + '\')"'});//   '<td>' + elem.id + '</td>'; //add manager id
-    row +=  $.tmpl(tableTemplate.td, {cell: elem.name, options: 'onClick="display(\'' + elem.name + '\')"'});// row + '<td>' + elem.name + '</td>'; //add manager name
-    row += $.tmpl(tableTemplate.td, {cell: 'Manager', options: 'onClick="display(\'' + elem.name + '\')"'});
+    row +=  $.tmpl(tableTemplate.td, {cell: elem.id, options: 'onClick="display(\'' + elem.name + '\')"'});//   '<td>' + elem.id + '</td>'; //add cluster id
+    row +=  $.tmpl(tableTemplate.td, {cell: elem.name, options: 'onClick="display(\'' + elem.name + '\')"'});// row + '<td>' + elem.name + '</td>'; //add cluster name
+    row += $.tmpl(tableTemplate.td, {cell: 'Cluster', options: 'onClick="display(\'' + elem.name + '\')"'});
     // Add action buttons
     var actionButtons = '';
-    actionButtons += $.tmpl(buttonTemplate.modal, {class: 'success', name: elem.name, message: 'Add Machine', action: 'add'});
+    actionButtons += $.tmpl(buttonTemplate.modal, {class: 'success', name: elem.name, message: 'Add Node', action: 'add'});
     actionButtons += $.tmpl(buttonTemplate.modal, {class: 'danger', name: elem.name, message: 'Destroy', action: 'del'});
     actionButtons += $.tmpl(buttonTemplate.popover, {class: 'info', name: elem.name, place: 'right', message: 'Info', content: elem.info});
-    row += $.tmpl(tableTemplate.td, {cell: actionButtons});
+    row += $.tmpl(tableTemplate.td, {cell: actionButtons, options: 'align="right"'});
     row = $.tmpl(tableTemplate.tr, {row: row, options:  'id="cluster' + elem.name + '"'});
     table.append(row);
 
@@ -70,8 +70,8 @@ function appendManagers(elem){
         options += '<option>' + element +  '</option>';
     });
 
-    table.append($.tmpl(managerDelDiv, {id: elem.id, name: elem.name}));
-    table.append($.tmpl(machineAddDIV, {id: elem.id, name: elem.name, options: options}));
+    table.append($.tmpl(clusterDelDiv, {id: elem.id, name: elem.name}));
+    table.append($.tmpl(nodeAddDIV, {id: elem.id, name: elem.name, options: options}));
 
 
 
@@ -103,19 +103,19 @@ function appendNode(elem, tmpl){
         hddCount += '<span class="glyphicon glyphicon-hdd"></span> ';
     }
 
-    //Information about the machine
-    var machineRow =  $.tmpl(tableTemplate.td, {cell: ''});
-    machineRow +=  $.tmpl(tableTemplate.td, {cell: ''});
-    machineRow +=  $.tmpl(tableTemplate.td, {cell: hddCount});
-    machineRow +=  $.tmpl(tableTemplate.td, {cell: tmpl});
-    machineRow +=  $.tmpl(tableTemplate.td, {cell: destroy + info, options: 'align="right"'});
-    machineRow = $.tmpl(tableTemplate.mtr, {row: machineRow, name: elem.name, id: tmpl});
+    //Information about the node
+    var nodeRow =  $.tmpl(tableTemplate.td, {cell: ''});
+    nodeRow +=  $.tmpl(tableTemplate.td, {cell: ''});
+    nodeRow +=  $.tmpl(tableTemplate.td, {cell: hddCount});
+    nodeRow +=  $.tmpl(tableTemplate.td, {cell: tmpl});
+    nodeRow +=  $.tmpl(tableTemplate.td, {cell: destroy + info, options: 'align="right"'});
+    nodeRow = $.tmpl(tableTemplate.mtr, {row: nodeRow, name: elem.name, id: tmpl});
 
 
 
-    nodePlace(elem.name).after(machineRow);
+    nodePlace(elem.name).after(nodeRow);
     $('#span' + elem.name).attr('class', 'glyphicon glyphicon-chevron-down');
-    table.append($.tmpl(machineDelDiv, {machineName: tmpl, managerName: elem.name}));
+    table.append($.tmpl(nodeDelDiv, {nodeName: tmpl, clusterName: elem.name}));
     
     tooglePopover();
 }
