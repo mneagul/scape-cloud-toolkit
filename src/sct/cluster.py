@@ -240,7 +240,7 @@ class ClusterController(BaseController):
         if not mgmt_node_privip:
             log.error("Management does not seem to have any private IP's. Aborting!")
             return False
-        puppet_server = mgmt_node_privip[0]
+        puppet_server = mgmt_node_privip
         log.info("Configuring node to use puppet server: %s", puppet_server)
         cloudInitHandler = template['cloudinit'](cluster_config=cluster_config, puppet_server=puppet_server)
         cloudInit = CloudInit([cloudInitHandler, ])
@@ -290,7 +290,7 @@ class ClusterController(BaseController):
         skapur_timeout = 120
 
         if not skapurClient.isalive():
-            log.info("Management is not yet UP. Waiting %d seconds" % skapur_timeout)
+            log.info("Management (%s) is not yet UP. Waiting %d seconds" % (skapur_url, skapur_timeout))
         current_duration = 0
         while not skapurClient.isalive():
             time.sleep(1)
