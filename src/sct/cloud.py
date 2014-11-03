@@ -172,11 +172,11 @@ class CloudController(BaseController):
             node = nodes[0]
             priv_ips = node.private_ips
             if not priv_ips:
-                time.sleep(1)
+                time.sleep(0.5)
                 continue
             if priv_ips:
                 if priv_ips[0] == "0.0.0.0": ### hack
-                    time.sleep(1)
+                    time.sleep(0.5)
                     continue
             log.debug("Private network was setup after %d seconds", duration)
             break
@@ -240,15 +240,16 @@ class CloudController(BaseController):
         if blocking:
             log.debug("waiting for node termination")
             start_time = time.time()
+            ip_addr = None
             while True:
-                time.sleep(1)
+                time.sleep(0.5)
                 instances = self.get_libcloud_nodes(instance_id)
                 if not instances: return True
                 self.conn.destroy_node(instance)
                 current_time = time.time()
                 duration = current_time - start_time
                 if duration > 100:
-                    log.error("Could not stop machine in the specified timeout: %s seconda", timeout)
+                    log.error("Could not stop machine in the specified timeout: %s seconds", timeout)
                     return False
         return True
 
@@ -351,11 +352,12 @@ class CloudController(BaseController):
         return addresses
 
     def list_available_addresses(self, **kwargs):
-        #log = logging.getLogger( "list_available_addresses" )
+        log = logging.getLogger( "list_available_addresses" )
         available_addresses = {}
         addresses = self.list_addresses()
         for addr in addresses:
             entry = addresses[addr]
+            log.debug("entry: %s", entry)
             if entry.instance_id is None:
                 available_addresses[addr] = addresses[addr]
         return available_addresses
@@ -377,6 +379,7 @@ class CloudController(BaseController):
         log = logging.getLogger("get_address")
         address = None
         available_addreses = self.list_available_addresses()
+        log.debug("Available addresses: %s", available_addreses)
         if available_addreses:
             address_id = available_addreses.keys().pop()
             log.debug("Found already existing address: %s", available_addreses[address_id].ip)

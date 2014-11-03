@@ -328,7 +328,7 @@ class ClusterController(BaseController):
             log.info("Management (%s) is not yet UP. Waiting %d seconds" % (skapur_url, skapur_timeout))
         current_duration = 0
         while not skapurClient.isalive():
-            time.sleep(1)
+            time.sleep(0.5)
             current_time = time.time()
             current_duration = current_time - start_time
             if current_duration > skapur_timeout:
