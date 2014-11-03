@@ -23,9 +23,12 @@ import logging
 import pkg_resources
 import uuid
 import time
+import socket
+import hashlib
+import hmac
 from sct.controller import BaseController
-from sct.cloudinit import CloudInit, CloudConfig, DefaultPuppetCloudConfig, DefaultJavaCloudCloudConfig
-from sct.cloudinit import PuppetMasterCloudConfig, PuppetMasterInitCloudBashScript, CloudConfigStoreFile
+from sct.cloudinit import CloudInit, CloudConfig, DefaultPuppetCloudConfig, DefaultJavaCloudCloudConfig, FormattedCloudInitShScript
+from sct.cloudinit import PuppetMasterCloudConfig, PuppetMasterInitCloudBashScript, CloudConfigStoreFile, CloudIncludeURL
 from sct.skapur import SkapurClient
 from sct.templates import get_template, get_available_templates
 from sct.templates.base import generate_node_content
@@ -114,6 +117,12 @@ class ClusterController(BaseController):
 
         management_node_name = "%s_Manager" % name
         hmac_secret = uuid.uuid4().get_hex()
+        earlycloudInit = CloudInit()
+        earlycloudInit.add_handler(FormattedCloudInitShScript(
+            pkg_resources.resource_string(__name__, "templates/resources/cloudinit_bootstrap.sh"),
+            {"HMAC": hmac_secret}))
+
+        #earlycloudInit.add_handler(CloudIncludeURL(["file:///etc/scape_cloud_init.payload", ]))
         cloudInit = CloudInit()
         configuration = {
             'apt_update': True, # Runs `apt-get update` on first run
@@ -138,9 +147,11 @@ class ClusterController(BaseController):
         userdata_compressed = cloudInit.generate(compress=True)
         log.debug("User data size: raw / compressed = %d/%d", len(userdata), len(userdata_compressed))
 
+        boot_cloud_init = earlycloudInit.generate(compress=False)
+
         node = self.cloud_controller.create_node(name=management_node_name, size=requested_size, image=requested_image,
                                                  security_group=requested_security_group, auto_allocate_address=True,
-                                                 keypair_name=keypair_name, userdata=userdata_compressed)
+                                                 keypair_name=keypair_name, userdata=boot_cloud_init)
 
         if not node:
             log.error("Error creating management node.")
@@ -153,6 +164,30 @@ class ClusterController(BaseController):
                                                    'hmac_secret': hmac_secret,
                                                    'puppet-module-repository': requested_module_repository_url
         }
+        timeout = 100
+        start_time = time.time()
+        log.info("Waiting for server setup")
+        ok = False
+
+        while not ok:
+            current_time = time.time()
+            if current_time - start_time > timeout:
+                log.error("Failed to send cloud init data in expected time")
+                return False
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                client_socket.connect((node["ip"], 8080))
+                token = hmac.new(hmac_secret, userdata_compressed, hashlib.sha1).hexdigest()
+                log.debug("HMAC Token=\t%s", token)
+                log.debug("HMAC Secret=\t%s", hmac_secret)
+                client_socket.send("%s\n" % token)
+                client_socket.send(userdata_compressed)
+                client_socket.close()
+                log.info("Sent stage-2 cloudinit payload")
+                ok = True
+            except Exception, e:
+                time.sleep(1)
+                log.debug("Failed to send additional cloud-init: %s ", e)
         return True
 
     def get_template_nodes(self, cluster_config, template_name):
