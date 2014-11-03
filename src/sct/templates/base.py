@@ -21,6 +21,7 @@ limitations under the License.
 
 from email.mime.multipart import MIMEMultipart
 from sct.cloudinit import BaseHandler, FormattedCloudInitShScript, CloudConfig
+import logging
 
 import pkg_resources
 
@@ -61,17 +62,19 @@ class PuppetClientNode(BaseTemplate):
     puppet_node = "default_node"
     def __init__(self, puppet_server, *args, **kwargs):
         BaseTemplate.__init__(self, *args, **kwargs)
-
+        log = logging.getLogger("PuppetClientNode")
         # Register the puppet master hostname
 
         self.add_part(FormattedCloudInitShScript(self.setup_script, {'puppetServer': puppet_server}))
+        log.info("Puppet server is: %s", puppet_server)
 
         # Add the puppet repository's
 
         self.cloud_config.add_apt_source(
-            {'source': 'deb http://apt.puppetlabs.com precise main',
-             'keyid': '4BD6EC30',
-             'filename': 'puppet-labs-main.list'
+            {
+                'source': 'deb http://apt.puppetlabs.com precise main',
+                'keyid': '4BD6EC30',
+                'filename': 'puppet-labs-main.list'
             }
         )
         self.cloud_config.add_apt_source(
@@ -80,6 +83,8 @@ class PuppetClientNode(BaseTemplate):
              'filename': 'puppet-labs-deps.list'
             }
         )
+
+        self.cloud_config.set_option('add_apt_repo_match', r'^deb.*') # CloudInit should manage hosts
 
         # Install puppet
         self.cloud_config.add_package("puppet")

@@ -83,6 +83,16 @@ class CloudUserScript(BaseHandler):
         return message
 
 
+class CloudIncludeURL(BaseHandler):
+    def __init__(self, urls=[]):
+        self.__urls = urls
+
+    def to_mime(self):
+        content = "\n".join(self.__urls)
+        message = MIMEText(content, "x-include-url", "utf8")
+        return message
+
+
 class CloudSHScript(CloudUserScript):
     def __init__(self, content):
         bash_content = "#!/bin/bash\n%s" % content
@@ -182,33 +192,36 @@ class FormattedCloudInitShScript(CloudSHScript):
 class PuppetMasterInitCloudBashScript(FormattedCloudInitShScript):
     script = """
     . /etc/profile
-    echo 'START=yes\nDAEMON_OPTS=""\n' > /etc/default/puppet
+    echo 'START=yes\n' > /etc/default/puppet
     sed -i 's|127.0.0.1|127.0.0.1 puppet|g' /etc/hosts
     LV=`LANG=C mount | grep -i 'on / ' | cut -d " " -f 1`
     VG=`echo $LV | cut -d "/" -f 4 | cut -d "-" -f 1`
+    SF="/etc/scape/modules/sct/files/"
+    PM="/etc/puppet/manifests/"
     /sbin/pvcreate /dev/vdb
     /sbin/vgextend $VG /dev/vdb
+    lvcreate -L 800M -n Swap ubuntu
     /sbin/lvresize -l +90%FREE $LV
     /sbin/resize2fs $LV
-    lvcreate -L 800M -n Swap ubuntu
     mkswap -f /dev/ubuntu/Swap
 
     SWAP_DISKS=$(blkid -s TYPE | grep -i swap | cut -d ":" -f 1)
     for DSK in $SWAP_DISKS; do
         swapon $DSK
     done
-    apt-get -q -y --force-yes install facter=2.0.2-1puppetlabs1
+    apt-get -q -y --force-yes install facter=2.0.2-1puppetlabs1 git
     apt-mark hold facter
     SK=/usr/local/bin/skapur
     RP=/usr/local/bin/reload-puppet-master
     curl -o ${SK} http://ftp.info.uvt.ro/projects/scape/tools/skapur/skapur
     chmod +x ${SK}
-    mkdir -p /etc/puppet/manifests/nodes/
-    touch /etc/puppet/manifests/nodes/dummy.pp
-    chown -R puppet /etc/puppet/manifests/nodes/
-    ln -s /etc/scape/modules/sct/files/templates /etc/puppet/manifests/templates
-    ln -s /etc/scape/modules/sct/files/site.pp /etc/puppet/manifests/site.pp
-    echo -e "#!/bin/bash\n/etc/init.d/puppetmaster restart" > ${RP}
+    mkdir -p ${PM}/nodes/
+    touch ${PM}/nodes/dummy.pp
+    chown -R puppet ${PM}/nodes/
+    ln -s ${SF}/templates ${PM}/templates
+    ln -s ${SF}/site.pp ${PM}/site.pp
+    echo  "puppet ALL=(ALL) NOPASSWD: /etc/init.d/puppetmaster" >> /etc/sudoers
+    echo -e "#!/bin/bash\nsudo /etc/init.d/puppetmaster restart" > ${RP}
     chmod +x ${RP}
     screen -A -m -d -S skapurpuppet sudo -u puppet ${SK} -hook=${RP} -address="0.0.0.0:8088" -store /etc/puppet/manifests/nodes/ -secret "@HMACSECREET"
     /etc/init.d/puppetmaster stop
@@ -219,7 +232,6 @@ class PuppetMasterInitCloudBashScript(FormattedCloudInitShScript):
     /etc/init.d/puppet start
     puppet module install --target-dir /etc/puppet/modules/ puppetlabs/puppetdb
     mkdir -p /etc/scape/
-    apt-get install -y git
     git clone @URL /etc/scape/modules
     cd /etc/scape/modules
     git submodule init && git submodule update
