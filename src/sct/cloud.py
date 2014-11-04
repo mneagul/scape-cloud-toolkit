@@ -357,9 +357,9 @@ class CloudController(BaseController):
         addresses = self.list_addresses()
         for addr in addresses:
             entry = addresses[addr]
-            log.debug("entry: %s", entry)
-            if entry.instance_id is None:
+            if entry.instance_id is None or not entry.instance_id:
                 available_addresses[addr] = addresses[addr]
+
         return available_addresses
 
 
@@ -379,7 +379,6 @@ class CloudController(BaseController):
         log = logging.getLogger("get_address")
         address = None
         available_addreses = self.list_available_addresses()
-        log.debug("Available addresses: %s", available_addreses)
         if available_addreses:
             address_id = available_addreses.keys().pop()
             log.debug("Found already existing address: %s", available_addreses[address_id].ip)
