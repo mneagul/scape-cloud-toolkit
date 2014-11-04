@@ -149,10 +149,9 @@ class CloudController(BaseController):
 
         log.info("Creating node %s (image=%s, size=%s)", requested_node_name, requested_node_image,
                  requested_node_size)
-        log.debug("Creating with private addressing type.")
 
         node = self.conn.create_node(name=requested_node_name, image=node_image, size=node_size,
-                                     ex_addressingtype="private", ex_security_groups=[requested_security_group, ],
+                                     ex_security_groups=[requested_security_group, ],
                                      ex_userdata=requested_userdata, **kwargs)
 
         start_time = time.time()
@@ -406,6 +405,10 @@ class CloudController(BaseController):
         else:
             log.error("Could not find node %s by instance-id or id", instance_id)
             return False
+
+        if node.public_ips:
+            log.info("Node already has public IP address (%s). Reusing it.", node.public_ips)
+            return node.public_ips[0]
 
         if requested_address is None:
             requested_address = self.get_address()
