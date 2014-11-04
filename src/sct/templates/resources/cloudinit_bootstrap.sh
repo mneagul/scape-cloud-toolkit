@@ -5,6 +5,10 @@ CLODINITPAYLOAD="/etc/scape_cloud_init.payload"
 INSCT="/var/tmp/sct_in_content.raw"
 INSCTPAYLOAD="/var/tmp/sct_in_content.payload"
 SCTLOG="/var/log/sct_stage1.log"
+
+
+echo "STARTING SCRIPT"
+
 while [ ! -e  "${CLODINITPAYLOAD}" ]; do
     nc -l 8080  >${INSCT}
 
@@ -24,3 +28,5 @@ while [ ! -e  "${CLODINITPAYLOAD}" ]; do
     )
 
 done
+
+echo "END SCRIPT"
