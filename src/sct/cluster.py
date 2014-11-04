@@ -128,12 +128,7 @@ class ClusterController(BaseController):
 
 
         cloudInit = CloudInit()
-        # configuration = {
-        #     'apt_update': True, # Runs `apt-get update` on first run
-        #     'apt_upgrade': False, #  Runs `apt-get upgrade
-        #     'manage_etc_hosts': True,
-        # }
-        # cloudInit.add_handler(CloudConfig(configuration))
+
         cloudInit.add_handler(
             CloudConfigStoreFile(pkg_resources.resource_string(__name__, "resources/puppet/bootstrap_master.pp"),
                                  "/etc/puppet_scape_master.pp"))
