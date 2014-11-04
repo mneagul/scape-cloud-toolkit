@@ -145,7 +145,6 @@ class ClusterController(BaseController):
         cloudInit.add_handler(
             PuppetMasterInitCloudBashScript(URL=requested_module_repository_url, HMACSECREET=hmac_secret))
 
-        #cloudInit.add_handler(DefaultJavaCloudCloudConfig()) # Install java from webupd8
         userdata = str(cloudInit)
         userdata_compressed = cloudInit.generate(compress=True)
         log.debug("User data size: raw / compressed = %d/%d", len(userdata), len(userdata_compressed))
