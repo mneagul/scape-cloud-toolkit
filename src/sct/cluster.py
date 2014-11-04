@@ -118,19 +118,22 @@ class ClusterController(BaseController):
         management_node_name = "%s_Manager" % name
         hmac_secret = uuid.uuid4().get_hex()
         earlycloudInit = CloudInit()
+        #earlycloudInit.add_handler(CloudIncludeURL(["file:///etc/scape_cloud_init.payload", ]))
         earlycloudInit.add_handler(FormattedCloudInitShScript(
             pkg_resources.resource_string(__name__, "templates/resources/cloudinit_bootstrap.sh"),
             {"HMAC": hmac_secret}))
 
-        #earlycloudInit.add_handler(CloudIncludeURL(["file:///etc/scape_cloud_init.payload", ]))
+        earlycloudInit.add_handler(SCAPERecursiveHandler("Diverse"))
+
+
+
         cloudInit = CloudInit()
-        configuration = {
-            'apt_update': True, # Runs `apt-get update` on first run
-            'apt_upgrade': False, #  Runs `apt-get upgrade
-            'manage_etc_hosts': True,
-            #'byobu_by_default': "system"
-        }
-        cloudInit.add_handler(CloudConfig(configuration))
+        # configuration = {
+        #     'apt_update': True, # Runs `apt-get update` on first run
+        #     'apt_upgrade': False, #  Runs `apt-get upgrade
+        #     'manage_etc_hosts': True,
+        # }
+        # cloudInit.add_handler(CloudConfig(configuration))
         cloudInit.add_handler(
             CloudConfigStoreFile(pkg_resources.resource_string(__name__, "resources/puppet/bootstrap_master.pp"),
                                  "/etc/puppet_scape_master.pp"))
@@ -147,7 +150,7 @@ class ClusterController(BaseController):
         userdata_compressed = cloudInit.generate(compress=True)
         log.debug("User data size: raw / compressed = %d/%d", len(userdata), len(userdata_compressed))
 
-        boot_cloud_init = earlycloudInit.generate(compress=False)
+        boot_cloud_init = earlycloudInit.generate(compress=True)
 
         node = self.cloud_controller.create_node(name=management_node_name, size=requested_size, image=requested_image,
                                                  security_group=requested_security_group, auto_allocate_address=True,
@@ -164,30 +167,32 @@ class ClusterController(BaseController):
                                                    'hmac_secret': hmac_secret,
                                                    'puppet-module-repository': requested_module_repository_url
         }
-        timeout = 100
-        start_time = time.time()
-        log.info("Waiting for server setup")
-        ok = False
 
-        while not ok:
-            current_time = time.time()
-            if current_time - start_time > timeout:
-                log.error("Failed to send cloud init data in expected time")
-                return False
-            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            try:
-                client_socket.connect((node["ip"], 8080))
-                token = hmac.new(hmac_secret, userdata_compressed, hashlib.sha1).hexdigest()
-                log.debug("HMAC Token=\t%s", token)
-                log.debug("HMAC Secret=\t%s", hmac_secret)
-                client_socket.send("%s\n" % token)
-                client_socket.send(userdata_compressed)
-                client_socket.close()
-                log.info("Sent stage-2 cloudinit payload")
-                ok = True
-            except Exception, e:
-                time.sleep(1)
-                log.debug("Failed to send additional cloud-init: %s ", e)
+
+        # timeout = 100
+        # start_time = time.time()
+        # log.info("Waiting for server setup")
+        # ok = False
+        #
+        # while not ok:
+        #     current_time = time.time()
+        #     if current_time - start_time > timeout:
+        #         log.error("Failed to send cloud init data in expected time")
+        #         return False
+        #     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #     try:
+        #         client_socket.connect((node["ip"], 8080))
+        #         token = hmac.new(hmac_secret, userdata_compressed, hashlib.sha1).hexdigest()
+        #         log.debug("HMAC Token=\t%s", token)
+        #         log.debug("HMAC Secret=\t%s", hmac_secret)
+        #         client_socket.send("%s\n" % token)
+        #         client_socket.send(userdata_compressed)
+        #         client_socket.close()
+        #         log.info("Sent stage-2 cloudinit payload")
+        #         ok = True
+        #     except Exception, e:
+        #         time.sleep(1)
+        #         log.debug("Failed to send additional cloud-init: %s ", e)
         return True
 
     def get_template_nodes(self, cluster_config, template_name):

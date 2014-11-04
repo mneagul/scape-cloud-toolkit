@@ -92,6 +92,23 @@ class CloudIncludeURL(BaseHandler):
         message = MIMEText(content, "x-include-url", "utf8")
         return message
 
+class CloudInitPartHandler(BaseHandler):
+    def __init__(self, content):
+        self.__content = content
+
+    def to_mime(self):
+        message = MIMEText(self.__content, "part-handler", "utf8")
+        return message
+
+
+class SCAPERecursiveHandler(BaseHandler):
+    def __init__(self, path):
+        self.__content = path
+
+    def to_mime(self):
+        message = MIMEText(self.__content, "scape-handler", "utf8")
+        return message
+
 
 class CloudSHScript(CloudUserScript):
     def __init__(self, content):
@@ -163,6 +180,9 @@ class PuppetMasterCloudConfig(CloudConfig):
     ]
     configuration = {
         'apt_sources': puppet_apt_repos, # Add puppet lab repository
+        'apt_update': True, # Runs `apt-get update`
+        'apt_upgrade': False, #  Runs `apt-get upgrade`
+        'manage_etc_hosts': True,
         'packages': [
             "puppet",
             "puppetmaster-common",
