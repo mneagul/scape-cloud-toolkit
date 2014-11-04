@@ -123,7 +123,7 @@ class ClusterController(BaseController):
             pkg_resources.resource_string(__name__, "templates/resources/cloudinit_bootstrap.sh"),
             {"HMAC": hmac_secret}))
 
-        earlycloudInit.add_handler(SCAPERecursiveHandler("Diverse"))
+        #earlycloudInit.add_handler(SCAPERecursiveHandler("Diverse"))
 
 
 
