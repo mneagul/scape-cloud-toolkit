@@ -344,14 +344,14 @@ class ClusterController(BaseController):
         clusters = [str(cluster) for cluster in self.clusters_config.getChildSections()]
         return clusters
 
-    def info(self, cluster_name):
+    def info(self, name):
         log = logging.getLogger("cluster.info")
         clusters_config = self.clusters_config
-        if not clusters_config.hasSection(cluster_name):
-            log.error("No such cluster `%s` !", cluster_name)
+        if not clusters_config.hasSection(name):
+            log.error("No such cluster `%s` !", name)
             return False
 
-        cluster_config = clusters_config.getSectionConfig(cluster_name)
+        cluster_config = clusters_config.getSectionConfig(name)
         config_nodes = cluster_config.getSectionConfig("nodes")
         mgmt_node_config = config_nodes.getSectionConfig("management_node")
         mgmt_node_ip = str(mgmt_node_config["ip"])
@@ -386,7 +386,6 @@ class ClusterController(BaseController):
                     tmpl_nodes_info.append(entry)
 
 
-        # print cluster_config
         return result
 
 
