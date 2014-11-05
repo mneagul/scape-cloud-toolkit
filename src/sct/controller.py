@@ -138,11 +138,25 @@ class BaseController(object):
         nodes_config = cluster_config.getSectionConfig("nodes")
         nodes = nodes_config.getChildSections()
 
+        log.info("Initial attempt to stop the machines")
         for node_name in nodes:
             node_value = nodes_config.getSectionConfig(node_name)
-            node_instance_id = node_value['instance_id']
+            try:
+                node_instance_id = node_value['instance_id']
+            except KeyError,e:
+                continue
             log.info("Deleting node `%s` (%s)", node_name, node_instance_id)
-            self.cloud_controller.terminate_node(node_instance_id)
+            self.cloud_controller.terminate_node(node_instance_id, blocking=False)
+
+        log.info("Stopping machines...")
+        for node_name in nodes:
+            node_value = nodes_config.getSectionConfig(node_name)
+            try:
+                node_instance_id = node_value['instance_id']
+            except KeyError,e:
+                continue
+            log.info("Deleting node `%s` (%s)", node_name, node_instance_id)
+            self.cloud_controller.terminate_node(node_instance_id, blocking=True)
         self.clusters_config.deleteSection(name)
 
         return True
