@@ -80,8 +80,6 @@ class SkapurClient(object):
         return True
 
 
-
-
 if __name__ == "__main__":
     client = SkapurClient(secret="5fc0a568352e4213a5dfefb1f79fab6b",
                           url="http://euca-194-102-62-138.euca3.cloud.ieat.ro:8088/")

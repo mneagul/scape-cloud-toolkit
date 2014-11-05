@@ -20,10 +20,11 @@ limitations under the License.
 """
 
 from email.mime.multipart import MIMEMultipart
-from sct.cloudinit import BaseHandler, FormattedCloudInitShScript, CloudConfig
 import logging
 
 import pkg_resources
+
+from sct.cloudinit import BaseHandler, FormattedCloudInitShScript, CloudConfig
 
 
 class TemplateHandler(object):
@@ -33,6 +34,7 @@ class TemplateHandler(object):
 
 class BaseTemplate(TemplateHandler, BaseHandler):
     rootfs_update_script = pkg_resources.resource_string(__name__, "resources/resize_rootfs.sh")
+
     def __init__(self, parts=[], *args, **kwargs):
         BaseHandler.__init__(self)
         TemplateHandler.__init__(self, *args, **kwargs)
@@ -60,6 +62,7 @@ class BaseTemplate(TemplateHandler, BaseHandler):
 class PuppetClientNode(BaseTemplate):
     setup_script = pkg_resources.resource_string(__name__, "resources/setup_puppet_agent.sh")
     puppet_node = "default_node"
+
     def __init__(self, puppet_server, *args, **kwargs):
         BaseTemplate.__init__(self, *args, **kwargs)
         log = logging.getLogger("PuppetClientNode")
@@ -84,16 +87,16 @@ class PuppetClientNode(BaseTemplate):
             }
         )
 
-        self.cloud_config.set_option('add_apt_repo_match', r'^deb.*') # CloudInit should manage hosts
+        self.cloud_config.set_option('add_apt_repo_match', r'^deb.*')  # CloudInit should manage hosts
 
         # Install puppet
         self.cloud_config.add_package("puppet")
 
         # Set global options
-        self.cloud_config.set_option('manage_etc_hosts', True) # CloudInit should manage hosts
-        self.cloud_config.set_option('apt_update', True) # Update the package list
+        self.cloud_config.set_option('manage_etc_hosts', True)  # CloudInit should manage hosts
+        self.cloud_config.set_option('apt_update', True)  # Update the package list
         self.cloud_config.set_option('apt_upgrade',
-                                     False) # Disable the Package upgrade. ToDo: This should be on by default
+                                     False)  # Disable the Package upgrade. ToDo: This should be on by default
 
     def get_puppet_node_specification(self, dns_name):
         """This should return a tuple containing:
@@ -104,7 +107,6 @@ class PuppetClientNode(BaseTemplate):
         """
         parent_node = self.puppet_node
         return (parent_node, None)
-
 
 
 def generate_node_content(node_name, node_spec):

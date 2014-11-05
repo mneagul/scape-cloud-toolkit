@@ -22,6 +22,7 @@ limitations under the License.
 from jsonrpc2 import JsonRpcApplication
 from mjsrpc2 import rpc
 from mjsrpc2.rpc import jsonmethod, jsonattribute
+
 from sct.cloud import CloudController
 from sct.cluster import ClusterController
 from sct.config import DatabaseConfigBackend
@@ -65,11 +66,8 @@ class APIApp(rpc.RPCBase):
                    documentation="The URL of the GIT repository containing Pupept recipes")
     @jsonattribute("module_repository_branch", kind=str, documentation="The repository branch")
     @jsonattribute("module_repository_tag", kind=str, documentation="The repository tag")
-
     def create_cluster(self, name, image, size, security_group, module_repository_url, module_repository_branch,
                        module_repository_tag):
-
-
         cluster_handler = self._construct_cluster_handler().create(name, image, size, security_group,
                                                                    module_repository_url, module_repository_branch,
                                                                    module_repository_tag)

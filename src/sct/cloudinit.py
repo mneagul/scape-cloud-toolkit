@@ -19,15 +19,13 @@ limitations under the License.
 @copyright: 2014 Universitatea de Vest din Timișoara
 """
 import StringIO
-from email.mime.application import MIMEApplication
-
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from string import Template
-
-import yaml
 import base64
 import gzip
+
+import yaml
 
 
 class BaseHandler(object):
@@ -64,8 +62,8 @@ class CloudConfig(BaseHandler):
         packages.append(package_spec)
 
     def set_option(self, key, value):
-#        if key in self.__configuration:
-#            raise KeyError("Duplicate key %s. It already has the value: %s", key, self.__configuration[key])
+        # if key in self.__configuration:
+        #            raise KeyError("Duplicate key %s. It already has the value: %s", key, self.__configuration[key])
         self.__configuration[key] = value
 
 
@@ -91,6 +89,7 @@ class CloudIncludeURL(BaseHandler):
         content = "\n".join(self.__urls)
         message = MIMEText(content, "x-include-url", "utf8")
         return message
+
 
 class CloudInitPartHandler(BaseHandler):
     def __init__(self, content):
@@ -129,11 +128,11 @@ EOF
 
 class DefaultJavaCloudCloudConfig(CloudConfig):
     configuration = {
-        'apt_sources': [# Add puppet lab repository
-                        {'source': 'deb http://ppa.launchpad.net/webupd8team/java/ubuntu precise main',
-                         'keyid': 'EEA14886',
-                         'filename': 'oracle-java.list'
-                        },
+        'apt_sources': [  # Add puppet lab repository
+                          {'source': 'deb http://ppa.launchpad.net/webupd8team/java/ubuntu precise main',
+                           'keyid': 'EEA14886',
+                           'filename': 'oracle-java.list'
+                          },
         ]
     }
 
@@ -153,7 +152,7 @@ class DefaultPuppetCloudConfig(CloudConfig):
         },
     ]
     configuration = {
-        #'apt_sources': puppet_apt_repos,  # Add puppet lab repository
+        # 'apt_sources': puppet_apt_repos,  # Add puppet lab repository
         'packages': [
             "puppet",
             "puppetmaster-common",
@@ -179,9 +178,9 @@ class PuppetMasterCloudConfig(CloudConfig):
         },
     ]
     configuration = {
-        'apt_sources': puppet_apt_repos, # Add puppet lab repository
-        'apt_update': True, # Runs `apt-get update`
-        'apt_upgrade': False, #  Runs `apt-get upgrade`
+        'apt_sources': puppet_apt_repos,  # Add puppet lab repository
+        'apt_update': True,  # Runs `apt-get update`
+        'apt_upgrade': False,  # Runs `apt-get upgrade`
         'manage_etc_hosts': True,
         'packages': [
             "puppet",

@@ -43,8 +43,10 @@ TEMPLATES = {
     }
 }
 
+
 def get_available_templates():
     return TEMPLATES.keys()
+
 
 def get_available_templates_detail():
     rez = {}
@@ -55,6 +57,7 @@ def get_available_templates_detail():
             current["ports"] = TEMPLATES[k]["ports"]
         rez[k] = current
     return rez
+
 
 def get_template(name):
     if name not in TEMPLATES:

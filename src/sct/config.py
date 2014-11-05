@@ -20,12 +20,9 @@ limitations under the License.
 """
 
 import os
-import sys
 import logging
 import sqlite3
 from os.path import expanduser, join
-
-import yaml
 
 
 CONFIG_FILE = join(expanduser("~"), "sct.scape.db")
@@ -83,10 +80,10 @@ class BaseConfig(object):
         raise NotImplementedError()
 
     def updateChild(self, key, value):
-        #self.log.warning("ZZZZZ")
+        # self.log.warning("ZZZZZ")
         key = "/%s" % key
         #print "updateing child: ", key, "with prefix: ", self._prefix
-        if isinstance(value, dict): # Special case
+        if isinstance(value, dict):  # Special case
             raise NotImplementedError()
         else:
             self.updateKey(key, value)
@@ -98,7 +95,7 @@ class BaseConfig(object):
 
     def put(self, key, value):
         newKey = "/%s" % key
-        #print "PUP--->", newKey, key, value
+        # print "PUP--->", newKey, key, value
         if isinstance(value, dict):
             section = self.getSectionConfig(key)
             for k, v in value.items():
@@ -134,7 +131,7 @@ class BaseConfig(object):
 
     def hasSection(self, section_name):
         key = "/%s/" % (section_name,)
-        #        if self._prefix:
+        # if self._prefix:
         #            key = "%s/%s/" % (self._prefix, section_name)
         #print "checking for key", key
         result = self.hasKey(key)
@@ -185,7 +182,7 @@ class BaseConfig(object):
             prefix = "%s/%s" % (self._prefix, section_name)
         else:
             prefix = "/%s" % section_name
-            #print section_name
+            # print section_name
         if not self.hasSection(section_name):
             self.put("%s/" % section_name, None)
 
@@ -258,6 +255,7 @@ class BaseConfig(object):
         keys = self.__getAllChildKeys(*args, **kwargs)
         keys = [key for key in keys if key.endswith("/")]
         return keys
+
 
 def SQIsChildOf(parent, element):
     if not parent.endswith("/"):
@@ -353,11 +351,11 @@ class DatabaseConfigBackend(BaseConfig):
         if self._prefix:
             if key.startswith("/"): key = key[1:]
             key = "%s/%s" % (self._prefix, key)
-            #print "update key=", key
+            # print "update key=", key
         try:
             ret = cursor.execute("""UPDATE config SET value=? WHERE key=?
             """, (value, key))
-            #print "Update WHERE: '%s'" % key
+            # print "Update WHERE: '%s'" % key
             #print "Update affected: ", ret.rowcount
             self._sqlite_connection.commit()
         finally:
@@ -378,7 +376,7 @@ class DatabaseConfigBackend(BaseConfig):
     def hasKey(self, key):
         if self._prefix:
             key = self._prefix + key
-            #print "hasKey=> searching for", key
+            # print "hasKey=> searching for", key
         cursor = self._sqlite_connection.cursor()
         try:
             results = [row for row in cursor.execute("""SELECT * FROM config WHERE key=?""", (key,))]
@@ -390,7 +388,7 @@ class DatabaseConfigBackend(BaseConfig):
             cursor.close()
 
 
-ConfigFile = DatabaseConfigBackend # Temporary
+ConfigFile = DatabaseConfigBackend  # Temporary
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)

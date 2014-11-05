@@ -19,11 +19,12 @@ limitations under the License.
 @copyright: 2014 Universitatea de Vest din Timișoara
 """
 
-
 from sct.templates.base import DefaultNodeTemplate
+
 
 class TavernaNodeTemplate(DefaultNodeTemplate):
     puppet_parent_node = None
+
     def __init__(self, *args, **kwargs):
         DefaultNodeTemplate.__init__(self, *args, **kwargs)
 
@@ -31,9 +32,11 @@ class TavernaNodeTemplate(DefaultNodeTemplate):
     def get_puppet_node_specification(self, dns_name):
         return (self.puppet_parent_node, "")
 
+
 class TavernaServer(TavernaNodeTemplate):
-    shortName="tavernaServer"
+    shortName = "tavernaServer"
     puppet_parent_node = "taverna_server"
+
     def __init__(self, *args, **kwargs):
         TavernaNodeTemplate.__init__(self, *args, **kwargs)
 

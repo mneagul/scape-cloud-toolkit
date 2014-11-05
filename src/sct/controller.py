@@ -20,6 +20,7 @@ limitations under the License.
 """
 
 import logging
+
 import libcloud.security
 
 
@@ -116,7 +117,6 @@ class BaseController(object):
         if node_id not in running_nodes:
             log.critical("Node %s is not running", node_id)
 
-
         log.debug("Trying to gain console access to %s in cluster %s", node, name)
 
         if not self.cloud_controller.console(node_id, keypair_name):
@@ -130,7 +130,7 @@ class BaseController(object):
             return False
 
         cluster_config = self.clusters_config.getSectionConfig(name)
-        if not cluster_config.getChildSections(): # Chimera cluster :)
+        if not cluster_config.getChildSections():  # Chimera cluster :)
             log.warn("Deleting chimera cluster '%s'", name)
             self.clusters_config.deleteSection(name)
             return True

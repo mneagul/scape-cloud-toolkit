@@ -20,15 +20,14 @@ limitations under the License.
 """
 
 import logging
-import pkg_resources
 import uuid
 import time
-import socket
-import hashlib
-import hmac
+
+import pkg_resources
+
 from sct.controller import BaseController
-from sct.cloudinit import CloudInit, CloudConfig, DefaultPuppetCloudConfig, DefaultJavaCloudCloudConfig, FormattedCloudInitShScript
-from sct.cloudinit import PuppetMasterCloudConfig, PuppetMasterInitCloudBashScript, CloudConfigStoreFile, CloudIncludeURL
+from sct.cloudinit import CloudInit, FormattedCloudInitShScript
+from sct.cloudinit import PuppetMasterCloudConfig, PuppetMasterInitCloudBashScript, CloudConfigStoreFile
 from sct.skapur import SkapurClient
 from sct.templates import get_template, get_available_templates
 from sct.templates.base import generate_node_content
@@ -45,9 +44,9 @@ class ClusterController(BaseController):
         if config.loaded:
             self.init()
 
-    def init(self): # Used for lazzy init
+    def init(self):  # Used for lazzy init
         if not self._initialized:
-            #if 'clusters' not in self.configObj.config:
+            # if 'clusters' not in self.configObj.config:
             #    self.configObj.config["clusters"] = {}
             self.clusters_config = self.configObj.getSectionConfig("clusters")
             #self.clusters_config = self.configObj.config.get("clusters")
@@ -118,7 +117,7 @@ class ClusterController(BaseController):
         management_node_name = "%s_Manager" % name
         hmac_secret = uuid.uuid4().get_hex()
         earlycloudInit = CloudInit()
-        #earlycloudInit.add_handler(CloudIncludeURL(["file:///etc/scape_cloud_init.payload", ]))
+        # earlycloudInit.add_handler(CloudIncludeURL(["file:///etc/scape_cloud_init.payload", ]))
         earlycloudInit.add_handler(FormattedCloudInitShScript(
             pkg_resources.resource_string(__name__, "templates/resources/cloudinit_bootstrap.sh"),
             {"HMAC": hmac_secret}))
@@ -149,7 +148,6 @@ class ClusterController(BaseController):
         node = self.cloud_controller.create_node(name=management_node_name, size=requested_size, image=requested_image,
                                                  security_group=requested_security_group, auto_allocate_address=True,
                                                  keypair_name=keypair_name, userdata=userdata_compressed)
-
 
         if not node:
             log.error("Error creating management node.")
@@ -226,7 +224,7 @@ class ClusterController(BaseController):
         cluster_config = self.clusters_config.getSectionConfig(cluster_name)
         template = get_template(template_name)
 
-        #ToDo: We should use cluster wide config first and after that global config
+        # ToDo: We should use cluster wide config first and after that global config
         requested_size = config_registry.get('cluster.default_size', None)
         requested_image = config_registry.get('cluster.default_image', None)
         requested_security_group = config_registry.get('cluster.default_security_group', None)
@@ -267,7 +265,6 @@ class ClusterController(BaseController):
             log.error("Invalid cluster. Management node is missing. Aborting")
             return False
         mgmt_node_config = cluster_config.getSectionConfig("nodes").getSectionConfig("management_node")
-
 
         mgmt_node_privip = mgmt_node_config['private_ips']
         mgmt_node_ip = mgmt_node_config['ip']
@@ -311,12 +308,11 @@ class ClusterController(BaseController):
         cluster_config_nodes = cluster_config.getSectionConfig("nodes")
         node_config_section = cluster_config_nodes.getSectionConfig(desired_node_name)
 
-
         node_config_section["name"] = desired_node_name
         node_config_section["instance_id"] = node["instance_id"]
-        node_config_section["ip"] =  node["ip"]
+        node_config_section["ip"] = node["ip"]
         node_config_section["private_ips"] = node["private_ips"][0]
-        node_config_section["private_dns"] =  node["private_dns"]
+        node_config_section["private_dns"] = node["private_dns"]
         node_config_section["template"] = template_name
 
         skapur_url = "http://%s:%d" % (mgmt_node_ip, SKAPUR_PORT)
@@ -345,7 +341,7 @@ class ClusterController(BaseController):
         return True
 
     def list_clusters(self):
-        clusters = [str(cluster) for cluster in  self.clusters_config.getChildSections()]
+        clusters = [str(cluster) for cluster in self.clusters_config.getChildSections()]
         return clusters
 
     def info(self, cluster_name):
@@ -390,7 +386,7 @@ class ClusterController(BaseController):
                     tmpl_nodes_info.append(entry)
 
 
-        #print cluster_config
+        # print cluster_config
         return result
 
 

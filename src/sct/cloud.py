@@ -26,20 +26,17 @@ import os
 import codecs
 import subprocess
 import tempfile
-import pkg_resources
 
 from libcloud.compute.types import Provider as ComputeProvider
 from libcloud.compute.providers import get_driver as get_compute_driver
-
 import libcloud.security
+
 from sct.cluster import ClusterController
 from sct.controller import BaseController
 
 
-
 class ClusterNodeController(BaseController):
     pass
-
 
 
 class CloudController(BaseController):
@@ -160,7 +157,7 @@ class CloudController(BaseController):
         node = None
         while True:
             duration = time.time() - start_time
-            if duration > network_setup_timeout: # Wait for network setup
+            if duration > network_setup_timeout:  # Wait for network setup
                 # ToDo: At this stage the node will remain in "limbo"
                 log.critical("The Cloud failed to setup the addresses in expected time")
                 return False
@@ -174,7 +171,7 @@ class CloudController(BaseController):
                 time.sleep(0.5)
                 continue
             if priv_ips:
-                if priv_ips[0] == "0.0.0.0": ### hack
+                if priv_ips[0] == "0.0.0.0":  ### hack
                     time.sleep(0.5)
                     continue
             log.debug("Private network was setup after %d seconds", duration)
@@ -351,7 +348,7 @@ class CloudController(BaseController):
         return addresses
 
     def list_available_addresses(self, **kwargs):
-        log = logging.getLogger( "list_available_addresses" )
+        log = logging.getLogger("list_available_addresses")
         available_addresses = {}
         addresses = self.list_addresses()
         for addr in addresses:
