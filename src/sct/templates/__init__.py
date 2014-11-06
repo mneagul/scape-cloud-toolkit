@@ -34,7 +34,8 @@ TEMPLATES = {
         'max-node-count': 1,
         'cloudinit': HadoopServer,
         'ports': {
-            '8088': 'Hadoop Jobs'
+            '8088': 'Hadoop Jobs',
+            '50070': 'HDFS Web UI'
         }
     },
     'hadoop-worker': {
