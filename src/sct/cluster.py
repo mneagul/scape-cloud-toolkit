@@ -23,6 +23,7 @@ import logging
 import uuid
 import time
 
+import urllib2
 import pkg_resources
 
 from sct.controller import BaseController
@@ -381,11 +382,24 @@ class ClusterController(BaseController):
                     node_ip = node_info.get("ip", None)
                     ports = {}
                     entry = {'ip': node_ip}
+
                     if 'ports' in template:
+                        status = True
                         entry["ports"] = template["ports"]
+                        entry["service-status"] = {}
+                        for port in entry["ports"]:
+                            port_status = self.check_http_service_on(node_ip, port)
+                            entry["service-status"][port] = port_status
+                            status = status and port_status
+                        entry["status"] = status
                     tmpl_nodes_info.append(entry)
 
 
         return result
 
-
+    def check_http_service_on(self, address, port):
+        try:
+            urllib2.urlopen("http://%s:%d" % (address, int(port)))
+            return True
+        except urllib2.URLError, e:
+            return False
