@@ -53,5 +53,5 @@ setup(
             'sct-cli = sct.cli:main',
         ]
     },
-    install_requires=["pyyaml>=3.0", "apache-libcloud", "lockfile>=0.8", "CherryPy>=3", "mjsrpc2>=0.0.7"],
+    install_requires=["pyyaml>=3.0", "apache-libcloud==0.14.0", "lockfile>=0.8", "CherryPy>=3", "mjsrpc2>=0.0.7"],
 )
