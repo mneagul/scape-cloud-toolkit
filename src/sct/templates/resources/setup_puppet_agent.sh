@@ -11,6 +11,7 @@ lvcreate -L 800M -n Swap ubuntu
 /sbin/resize2fs $LV
 mkswap -f /dev/ubuntu/Swap
 
+apt-get -q -y --force-yes install wget
 
 mkdir -p /usr/local/java
 wget -O /usr/local/java/tomar-1.5.2-SNAPSHOT-jar-with-dependencies.jar http://web.info.uvt.ro/~neagul/scape/tomar-1.5.2-SNAPSHOT-jar-with-dependencies.jar
