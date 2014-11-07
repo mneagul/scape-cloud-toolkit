@@ -382,6 +382,7 @@ class ClusterController(BaseController):
                     node_ip = node_info.get("ip", None)
                     ports = {}
                     entry = {'ip': node_ip}
+                    entry["euca_node_name"] = node_info["name"]
 
                     if 'ports' in template:
                         status = True
