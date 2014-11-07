@@ -22,6 +22,7 @@ limitations under the License.
 import logging
 import uuid
 import time
+import threading
 
 import urllib2
 import pkg_resources
@@ -37,11 +38,13 @@ from sct.templates.base import generate_node_content
 SKAPUR_PORT = 8088
 
 
+
 class ClusterController(BaseController):
     def __init__(self, config, cloud_controller):
         BaseController.__init__(self, config)
         self.cloud_controller = cloud_controller
         self._initialized = False
+        self.lock = threading.Lock()
         if config.loaded:
             self.init()
 
@@ -212,8 +215,11 @@ class ClusterController(BaseController):
                 results.append((node, node_info))
         return results
 
+    def add_node(self, *args, **kw):
+        with self.lock:
+            self._add_node(*args, **kw)
 
-    def add_node(self, template_name, cluster_name):
+    def _add_node(self, template_name, cluster_name):
         log = logging.getLogger("cluster.add_node")
         config_registry = self.get_config_registry()
 
