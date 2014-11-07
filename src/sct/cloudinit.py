@@ -250,6 +250,7 @@ class PuppetMasterInitCloudBashScript(FormattedCloudInitShScript):
     /etc/init.d/puppetmaster start
     /etc/init.d/puppet start
     puppet module install --target-dir /etc/puppet/modules/ puppetlabs/puppetdb
+    puppet module install --target-dir /etc/puppet/modules/ puppetlabs/motd
     mkdir -p /etc/scape/
     git clone @URL /etc/scape/modules
     cd /etc/scape/modules
