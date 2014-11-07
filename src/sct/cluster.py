@@ -399,7 +399,7 @@ class ClusterController(BaseController):
 
     def check_http_service_on(self, address, port):
         try:
-            urllib2.urlopen("http://%s:%d" % (address, int(port)))
+            urllib2.urlopen("http://%s:%d" % (address, int(port)), timeout=1)
             return True
         except urllib2.URLError, e:
             return False
