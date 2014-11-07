@@ -11,6 +11,10 @@ lvcreate -L 800M -n Swap ubuntu
 /sbin/resize2fs $LV
 mkswap -f /dev/ubuntu/Swap
 
+
+mkdir -p /usr/local/java
+wget -O /usr/local/java/tomar-1.5.2-SNAPSHOT-jar-with-dependencies.jar http://web.info.uvt.ro/~neagul/scape/tomar-1.5.2-SNAPSHOT-jar-with-dependencies.jar
+
 SD=$(blkid -s TYPE | grep -i swap | cut -d ":" -f 1)
 for D in $SD; do
     swapon $D
