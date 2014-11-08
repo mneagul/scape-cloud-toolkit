@@ -23,6 +23,7 @@ import logging
 import uuid
 import time
 import threading
+import socket
 
 import urllib2
 import pkg_resources
@@ -388,6 +389,7 @@ class ClusterController(BaseController):
                     node_ip = node_info.get("ip", None)
                     ports = {}
                     entry = {'ip': node_ip}
+                    entry["private-ips"] = node_info.get("private_ips", None)
                     entry["euca_node_name"] = node_info["name"]
 
                     if 'ports' in template:
@@ -409,4 +411,6 @@ class ClusterController(BaseController):
             urllib2.urlopen("http://%s:%d" % (address, int(port)), timeout=1)
             return True
         except urllib2.URLError, e:
+            return False
+        except socket.timeout, e:
             return False
