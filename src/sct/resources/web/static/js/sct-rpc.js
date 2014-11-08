@@ -1,4 +1,5 @@
-
+var clusterList = {};
+var clusterIfoUpdated = {};
 
 
 Object.size = function(obj) {
@@ -9,7 +10,6 @@ Object.size = function(obj) {
     return size;
 };
 
-var clusterList = {};
 
 function modifyNodeState(clusterID, nodeID, running){
     
@@ -48,7 +48,7 @@ function deleteCluster(mName){
                 });
             },
             error : function(error) {
-                console.error('sct-rpc.deleteCluster: ' + error.message);
+                console.log('sct-rpc.deleteCluster: ' + error.message);
                  $("#alert-wait-cluster-destroyed").remove();
                 $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "destroyed"}));
                 
@@ -98,7 +98,7 @@ function addNode(mName){
                 }
             },
             error : function(error) {
-                console.error('sct-rpc.addNode: ' + error.message);
+                console.log('sct-rpc.addNode: ' + error.message);
                 $("#alert-wait-created").remove();
                 $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "created"}));
                 
@@ -146,7 +146,7 @@ function addCluster(){
                 });
             },
             error : function(error) {
-                console.error('sct-rpc.addCluster: ' + error.message);
+                console.log('sct-rpc.addCluster: ' + error.message);
                 $('#alert-wait-cluster-created').remove();
                 $("#alert-div").append($.tmpl(alertTemplate, {type: "danger", strong: errorIcon, message: error.message, id: "instantiated"}));
             }
@@ -170,19 +170,22 @@ function showClusterInfo(name){
         url: '/api/',
     }, {
         success : function(result) {
-            var info = '<ul> <li> <a target="_blank" href=' + result.global['module-repository'] + '>Module repository </a> </li>' +
-                            '<li> <a target="_blank" href=' + result.global.puppetdb + '>PuppetDB</a></li></ul>' ;
-            $('#popover' + name).attr('data-content', info);
+            var info = '<ul> <li> <a target=_blank href=' + result.global['module-repository'] + '>Module repository </a> </li>' +
+                            '<li> <a target=_blank href=' + result.global['puppetdb'] + '>PuppetDB</a></li></ul>' ;
+            
             
             clusterList[name].info = info;
+            //console.warn(info);
             clusterList[name].templates = result.templates;
+            appendClusters(clusterList[name]);
             for(key in clusterList[name].templates){
                 appendNode(clusterList[name], key);
             }
+            //$('#popover' + name).attr('data-content', info);
             
         },
         error : function(error) {
-            console.error('sct-rpc.showClusters: ' + error.message);
+            console.log('sct-rpc.showClusters: ' + error.message);
         },
 
     });
@@ -212,13 +215,13 @@ function showClusters(){
                     
                 });               
                 
-                for(key in clusterList){
-                    appendClusters(clusterList[key]);
-                }
+//                for(key in clusterList){
+//                    appendClusters(clusterList[key]);
+//                }
                 
             },
             error : function(error) {
-                console.error('sct-rpc.showClusters: ' + error.message);
+                console.log('sct-rpc.showClusters: ' + error.message);
             }
 
         });
@@ -237,7 +240,7 @@ function getTemplates(){
                 });
             },
             error : function(error) {
-                console.error("sct-rpc.getTemplates: " + error.message);
+                console.log("sct-rpc.getTemplates: " + error.message);
                 
             }
 

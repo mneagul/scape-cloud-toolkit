@@ -3,7 +3,7 @@ var nodePlace = function (name){
     return $("#cluster" + name + ':last');
 }
 
-function tooglePopover(){
+function togglePopover(){
     $("[data-toggle=popover]").popover({ trigger: "manual" , html: true})
     .on("mouseenter", function () {
         var _this = this;
@@ -60,6 +60,7 @@ function appendClusters(elem){
     var actionButtons = '';
     actionButtons += $.tmpl(buttonTemplate.modal, {class: 'success', name: elem.name, message: 'Add Node', action: 'add'});
     actionButtons += $.tmpl(buttonTemplate.modal, {class: 'danger', name: elem.name, message: 'Destroy', action: 'del'});
+    console.info(elem.info);
     actionButtons += $.tmpl(buttonTemplate.popover, {class: 'info', name: elem.name, place: 'right', message: 'Info', content: elem.info});
     row += $.tmpl(tableTemplate.td, {cell: actionButtons, options: 'align="right"'});
     row = $.tmpl(tableTemplate.tr, {row: row, options:  'id="cluster' + elem.name + '"'});
@@ -73,7 +74,7 @@ function appendClusters(elem){
     table.append($.tmpl(clusterDelDiv, {id: elem.id, name: elem.name}));
     table.append($.tmpl(nodeAddDIV, {id: elem.id, name: elem.name, options: options}));
 
-
+    togglePopover();
 
 }
 
@@ -85,17 +86,30 @@ function appendNode(elem, tmpl){
     node_info += '<ol>';
 
     for(var i = 0; i < elem.templates[tmpl].nodes.length; i++){
-        node_info += '<li>';
-        node_info += '<ul>';
-        node_info += '<li>IP: ' + elem.templates[tmpl].nodes[i].ip + '</li>';
+        
         for(p in elem.templates[tmpl].nodes[i].ports){
-            node_info += '<li>' + p + ': ' + elem.templates[tmpl].nodes[i].ports[p] + '</li>';
+            node_info += '<li><a href=http://' + elem.templates[tmpl].nodes[i].ip;
+            node_info += ':' + p + '>' + elem.templates[tmpl].nodes[i].ports[p] + '</a>';
+            serviceStatus = elem.templates[tmpl].nodes[i]['service-status'][p];
+            if(serviceStatus == true){
+                node_info += " UP ";
+            }else {
+                node_info += " DOWN ";
+            }
+
+            node_info += '</li>';
         }
-        node_info += '</ul></li>';
+        // node_info += '</li>';
     }
     node_info += '</ol></li></ul>';
 
-    var destroy = $.tmpl(buttonTemplate.modal, {class: 'danger', name: elem.name + '' + tmpl, message: 'Destroy', action: 'del'});
+    service = elem.templates[tmpl].nodes.status;
+    var status;
+    if(service == true)
+        status = $.tmpl(buttonTemplate.modal, {class: 'success', name: elem.name + '' + tmpl, message: 'UP', });
+    else{
+        status = $.tmpl(buttonTemplate.modal, {class: 'danger', name: elem.name + '' + tmpl, message: 'DOWN', });
+    }
     var info = $.tmpl(buttonTemplate.popover, {class: 'info', name: elem.name + '' + tmpl, place: 'right', message: 'Info', content: node_info});
     
     hddCount = '';
@@ -108,7 +122,7 @@ function appendNode(elem, tmpl){
     nodeRow +=  $.tmpl(tableTemplate.td, {cell: ''});
     nodeRow +=  $.tmpl(tableTemplate.td, {cell: hddCount});
     nodeRow +=  $.tmpl(tableTemplate.td, {cell: tmpl});
-    nodeRow +=  $.tmpl(tableTemplate.td, {cell: destroy + info, options: 'align="right"'});
+    nodeRow +=  $.tmpl(tableTemplate.td, {cell: status + info, options: 'align="right"'});
     nodeRow = $.tmpl(tableTemplate.mtr, {row: nodeRow, name: elem.name, id: tmpl});
 
 
@@ -117,7 +131,7 @@ function appendNode(elem, tmpl){
     $('#span' + elem.name).attr('class', 'glyphicon glyphicon-chevron-down');
     table.append($.tmpl(nodeDelDiv, {nodeName: tmpl, clusterName: elem.name}));
     
-    tooglePopover();
+    togglePopover();
 }
 
 
