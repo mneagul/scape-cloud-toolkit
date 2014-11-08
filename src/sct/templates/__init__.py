@@ -35,7 +35,8 @@ TEMPLATES = {
         'cloudinit': HadoopServer,
         'ports': {
             '8088': 'Hadoop Jobs',
-            '50070': 'HDFS Web UI'
+            '50070': 'HDFS Web UI',
+            '8888': 'Apache Hue'
         }
     },
     'hadoop-worker': {
