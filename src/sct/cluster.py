@@ -363,7 +363,7 @@ class ClusterController(BaseController):
         cluster_config = clusters_config.getSectionConfig(name)
         config_nodes = cluster_config.getSectionConfig("nodes")
         mgmt_node_config = config_nodes.getSectionConfig("management_node")
-        if not mgmt_node_config.hasSection("ip"):
+        if not mgmt_node_config.hasChild("ip"):
             log.critical("Management node for cluster `%s` has no `ip` section!", name)
             return result
         mgmt_node_ip = str(mgmt_node_config["ip"])
