@@ -354,6 +354,7 @@ class ClusterController(BaseController):
 
     def info(self, name):
         log = logging.getLogger("cluster.info")
+        result = {}
         clusters_config = self.clusters_config
         if not clusters_config.hasSection(name):
             log.error("No such cluster `%s` !", name)
@@ -362,10 +363,12 @@ class ClusterController(BaseController):
         cluster_config = clusters_config.getSectionConfig(name)
         config_nodes = cluster_config.getSectionConfig("nodes")
         mgmt_node_config = config_nodes.getSectionConfig("management_node")
+        if not mgmt_node_config.hasSection("ip"):
+            log.critical("Management node for cluster `%s` has no `ip` section!", name)
+            return result
         mgmt_node_ip = str(mgmt_node_config["ip"])
         module_repository_url = str(mgmt_node_config['puppet-module-repository'])
 
-        result = {}
         templates = {}
         result['global'] = {}
         result['templates'] = templates
