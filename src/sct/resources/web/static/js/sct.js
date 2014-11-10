@@ -82,8 +82,9 @@ function appendClusters(elem){
 function appendNode(elem, tmpl){
     var node_info = '<ul>';
     node_info += '<li>Count: ' + elem.templates[tmpl].count + '</li>';
-    node_info += '<li>Nodes:';
+    node_info += '<li>Services:';
     node_info += '<ol>';
+    var service;
 
     for(var i = 0; i < elem.templates[tmpl].nodes.length; i++){
         
@@ -103,7 +104,7 @@ function appendNode(elem, tmpl){
     }
     node_info += '</ol></li></ul>';
 
-    service = elem.templates[tmpl].nodes.status;
+    service = elem.templates[tmpl].nodes[0].status;
     var status;
     if(service == true)
         status = $.tmpl(buttonTemplate.modal, {class: 'success', name: elem.name + '' + tmpl, message: 'UP', });
