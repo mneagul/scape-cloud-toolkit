@@ -218,7 +218,7 @@ class ClusterController(BaseController):
 
     def add_node(self, *args, **kw):
         with self.lock:
-            self._add_node(*args, **kw)
+            return self._add_node(*args, **kw)
 
     def _add_node(self, template_name, cluster_name):
         log = logging.getLogger("cluster.add_node")
