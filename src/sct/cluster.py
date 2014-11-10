@@ -417,3 +417,5 @@ class ClusterController(BaseController):
             return False
         except socket.timeout, e:
             return False
+        except IOError, e:
+            return False
