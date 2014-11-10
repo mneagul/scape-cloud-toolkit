@@ -8,7 +8,7 @@ Please open a ticket for any kind of bug or issue you find. The issue tracker is
 ## Installation
 
 In case you have an eucalyptus instance that does use "Private Only Addressing" you need to use a patched version
-of libcloud from https://github.com/mneagul/libcloud
+of libcloud from https://github.com/mneagul/libcloud (outdated)
 
 1. Create a new virtual env for the project:
   `virtualenv --no-site-packages ~/scape`
@@ -79,6 +79,13 @@ Create a new cluster named *SCAPE1*
 This allow you to establish automatically a conection to the management node:
 
 `~/scape/bin/sct-cli -vvvvv cluster -S console --name=SCAPE1`
+
+### Add a hadoop server
+
+This adds a new hadoop server to the cluster. Currently there is a restriction of only one hadoop server.
+
+`~/scape/bin/sct-cli -vvvvv cluster -S add-node --template-name=hadoop-worker --cluster-name=SCAPE1`
+
 
  
 
