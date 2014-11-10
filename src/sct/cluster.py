@@ -418,4 +418,9 @@ class ClusterController(BaseController):
         except socket.timeout, e:
             return False
         except IOError, e:
+            try:
+                urllib2.urlopen("https://%s:%d" % (address, int(port)), timeout=1)
+                return True
+            except:
+                return False
             return False
